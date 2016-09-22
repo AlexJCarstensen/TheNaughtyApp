@@ -7,10 +7,12 @@
     android:fitsSystemWindows="true"
     tools:context="com.alexcarstensen.weatherornotyoulikeit.MainActivity">
 
+<!--
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:theme="@style/AppTheme.AppBarOverlay"
+        >
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
@@ -20,6 +22,7 @@
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
+-->
 
     <include layout="@layout/content_main" />
 
@@ -29,6 +32,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
+        android:background="#FF1232"
+        app:srcCompat="@android:drawable/ic_popup_sync" />
 
 </android.support.design.widget.CoordinatorLayout>
