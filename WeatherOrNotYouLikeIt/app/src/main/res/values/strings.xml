@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">Weather or not you like it</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="txtWeather">Weather:</string>
+    <string name="txtCity">City</string>
+    <string name="txtCurrentWeather">Current weather:</string>
+    <string name="txtTempDegree">XX°</string>
+    <string name="txtStatus">Status</string>
+    <string name="txtUpdateWeather">Update weather</string>
+
 </resources>

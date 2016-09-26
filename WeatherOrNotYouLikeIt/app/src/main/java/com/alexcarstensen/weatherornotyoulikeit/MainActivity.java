@@ -12,25 +12,13 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    /*
-    private listAdaptor listAdaptorObj;
-    private ListView weatherHistoryListView;
-    */
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /*
-        final ArrayList<weatherItem> weatherItemList = new ArrayList<weatherItem>();
-        for(int i = 0; i < 1000; i++){
-            weatherItemList.add(new weatherItem("Weather #" + (i+1), "Date #" + (i+1),"Temp #" + (i+1),"Time #" + (i+1),0));
-        }
 
-        listAdaptorObj = new listAdaptor(this, weatherItemList);
-        weatherHistoryListView = (ListView)findViewById(R.id.listViewWeatherHistory);
-        weatherHistoryListView.setAdapter(listAdaptorObj);
-        */
 
 
 
@@ -38,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, R.string.txtUpdateWeather, Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
