@@ -1,3 +1,5 @@
+package com.alexcarstensen.weatherornotyoulikeit.helpers;
+
 import android.provider.BaseColumns;
 
 /**

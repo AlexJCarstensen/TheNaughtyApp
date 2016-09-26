@@ -1,3 +1,5 @@
+package com.alexcarstensen.weatherornotyoulikeit.helpers;
+
 import java.security.Timestamp;
 import java.sql.Time;
 
