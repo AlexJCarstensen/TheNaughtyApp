@@ -17,14 +17,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
 
-<<<<<<< HEAD
-=======
 
-    /*
-    private listAdaptor listAdaptorObj;
-    private ListView weatherHistoryListView;
-    */
->>>>>>> 2382cab936612d20b60546d780fea730af063d14
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
