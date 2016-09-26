@@ -14,6 +14,9 @@ public class content_history_weather_fragment extends Fragment {
 
     private listAdaptor listAdaptorObj;
     private ListView weatherHistoryListView;
+    private final ArrayList<weatherItem> weatherItemList = new ArrayList<weatherItem>();
+
+    View view;
 
     public content_history_weather_fragment() {
     }
@@ -24,24 +27,27 @@ public class content_history_weather_fragment extends Fragment {
                              ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.content_fragment_weather_history,
+        view = inflater.inflate(R.layout.content_fragment_weather_history,
                 container, false);
 
-        final ArrayList<weatherItem> weatherItemList = new ArrayList<weatherItem>();
-        for(int i = 0; i < 1000; i++){
+        /*
+        for(int i = 0; i < 5; i++){
             weatherItemList.add(new weatherItem("Weather #" + (i+1), "Date #" + (i+1),"Temp #" + (i+1),"Time #" + (i+1),0));
         }
 
         listAdaptorObj = new listAdaptor(view.getContext(), weatherItemList);
         weatherHistoryListView = (ListView)view.findViewById(R.id.listViewWeatherHistory);
-        weatherHistoryListView.setAdapter(listAdaptorObj);
+        weatherHistoryListView.setAdapter(listAdaptorObj);*/
 
         return view;
 
-
-
     }
 
-
+    public void setWeatherObject(weatherItem weather){
+        weatherItemList.add(0,weather);
+        listAdaptorObj = new listAdaptor(view.getContext(), weatherItemList);
+        weatherHistoryListView = (ListView)view.findViewById(R.id.listViewWeatherHistory);
+        weatherHistoryListView.setAdapter(listAdaptorObj);
+    }
 
 }
