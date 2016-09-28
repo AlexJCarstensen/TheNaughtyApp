@@ -6,22 +6,22 @@ package com.alexcarstensen.weatherornotyoulikeit.model;
 
 public class Wind
 {
-    private float speed;
-    private float deg;
+    private double speed;
+    private double deg;
 
-    public float getSpeed() {
+    public double getSpeed() {
         return speed;
     }
 
-    public float getDeg() {
+    public double getDeg() {
         return deg;
     }
 
-    public void setDeg(float deg) {
+    public void setDeg(double deg) {
         this.deg = deg;
     }
 
-    public void setSpeed(float speed) {
+    public void setSpeed(double speed) {
         this.speed = speed;
     }
 }

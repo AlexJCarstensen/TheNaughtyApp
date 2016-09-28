@@ -6,23 +6,23 @@ package com.alexcarstensen.weatherornotyoulikeit.model;
 
 public class Main
 {
-    private float temp;
+    private double temp;
     private int humidity;
-    private float pressure;
-    private float temp_min;
-    private float temp_max;
+    private double pressure;
+    private double temp_min;
+    private double temp_max;
 
-    public float getTemp()
+    public double getTemp()
     {
         return temp;
     }
 
-    public float getTemp_min()
+    public double getTemp_min()
     {
         return temp_min;
     }
 
-    public float getTemp_max()
+    public double getTemp_max()
     {
         return temp_max;
     }
@@ -32,12 +32,12 @@ public class Main
         return humidity;
     }
 
-    public float getPressure()
+    public double getPressure()
     {
         return pressure;
     }
 
-    public void setTemp(float temp_)
+    public void setTemp(double temp_)
     {
         temp = temp_;
     }
@@ -47,17 +47,17 @@ public class Main
         humidity = humidity_;
     }
 
-    public void setPressure(float pressure_)
+    public void setPressure(double pressure_)
     {
         pressure = pressure_;
     }
 
-    public void setTemp_min(float temp_min_)
+    public void setTemp_min(double temp_min_)
     {
         temp_min = temp_min_;
     }
 
-    public void setTemp_max(float temp_max_)
+    public void setTemp_max(double temp_max_)
     {
         temp_max = temp_max_;
     }

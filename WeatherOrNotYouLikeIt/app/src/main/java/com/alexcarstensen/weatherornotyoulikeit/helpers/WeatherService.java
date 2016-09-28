@@ -170,7 +170,11 @@ public class WeatherService extends Service {
             String weatherStatus = cityWeather.getWeather()[0].getDescription();
             String time = new SimpleDateFormat("HH:mm").format(Calendar.getInstance().getTime());
             String date = new SimpleDateFormat("dd/MM").format(Calendar.getInstance().getTime());
-            String tempearture = Float.toString(cityWeather.getMain().getTemp());
+            Double celciusTemperature = TempeatureHelper.FahrenheitToCelcius(cityWeather.getMain().getTemp());
+
+            //TODO: Why the f*** Is the temperature so high?!?
+
+            String tempearture = Double.toString(celciusTemperature);
 
             weatherItem tempItem = new weatherItem(weatherStatus, date, tempearture, time, 1); //TODO: What is response code?
 

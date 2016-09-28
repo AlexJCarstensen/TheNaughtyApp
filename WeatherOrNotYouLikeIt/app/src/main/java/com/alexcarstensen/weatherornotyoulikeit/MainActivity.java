@@ -103,6 +103,8 @@ public class MainActivity extends AppCompatActivity {
 
             Log.d("weather item", WeatherService.LOG_LINE + weather.getWeatherStatus());
 
+
+
             //Checking if it works when it receives the update
             //TODO: Jeppe check if this is right!
             FragmentManager fm = getSupportFragmentManager();

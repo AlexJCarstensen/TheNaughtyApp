@@ -6,25 +6,25 @@ package com.alexcarstensen.weatherornotyoulikeit.model;
 
 public class Coordinates
 {
-    private float lon;
-    private float lat;
+    private double lon;
+    private double lat;
 
-    public float getLon()
+    public double getLon()
     {
         return lon;
     }
 
-    public float getLat()
+    public double getLat()
     {
         return lat;
     }
 
-    public void setLon(float lon_)
+    public void setLon(double lon_)
     {
         lon = lon;
     }
 
-    public void setLat(float lat_)
+    public void setLat(double lat_)
     {
         lat = lat_;
     }

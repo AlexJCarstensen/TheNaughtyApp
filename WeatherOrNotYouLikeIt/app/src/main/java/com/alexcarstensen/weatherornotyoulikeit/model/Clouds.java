@@ -6,14 +6,14 @@ package com.alexcarstensen.weatherornotyoulikeit.model;
 
 public class Clouds
 {
-    private float all;
+    private double all;
 
-    public float getAll()
+    public double getAll()
     {
         return all;
     }
 
-    public void setFloat(float all_)
+    public void setFloat(double all_)
     {
         all = all_;
     }
