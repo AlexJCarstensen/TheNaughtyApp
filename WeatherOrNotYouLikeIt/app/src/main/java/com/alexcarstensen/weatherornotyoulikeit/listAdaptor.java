@@ -71,6 +71,7 @@ public class listAdaptor extends BaseAdapter {
             TextView txtTime = (TextView) convertView.findViewById(R.id.textViewUpdateTime);
             txtTime.setText(weatherItemObj.getTime());
 
+
         }
         return convertView;
     }

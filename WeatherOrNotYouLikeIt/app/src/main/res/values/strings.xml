@@ -6,6 +6,6 @@
     <string name="txtCurrentWeather">Current weather:</string>
     <string name="txtTempDegree">XX°</string>
     <string name="txtStatus">Status</string>
-    <string name="txtUpdateWeather">Update weather</string>
+    <string name="txtUpdateWeather">Weather updated</string>
 
 </resources>
