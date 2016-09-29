@@ -1,6 +1,7 @@
 package com.alexcarstensen.weatherornotyoulikeit.helpers;
 
 import android.provider.BaseColumns;
+import android.provider.SearchRecentSuggestions;
 
 /**
  * Created by Lærke on 26-09-2016.
@@ -16,8 +17,9 @@ public final class FeedReaderContract {
         public static final String TABLE_NAME = "WeatherTable";
         public static final String COLUMN_ID = "WeatherId";
         public static final String COLUMN_WEATHERSTATUS = "weatherStatus";
-        public static final String COLUMN_DATE = "date";
+        public static final String COLUMN_DATE = "weatherdate";
         public static final String COLUMN_TEMPERATURE = "temperature";
+        public static final String COLUMN_ICON = "icon";
         public static final String COLUMN_RESULTCODE = "resultCode";
     }
 
