@@ -143,6 +143,8 @@ public class WeatherService extends Service {
 
                             WeatherUpdateReady();
 
+                            queue = null;
+
                         }
                     }, new Response.ErrorListener() {
                 @Override
@@ -151,6 +153,7 @@ public class WeatherService extends Service {
 
                     txtResponse = error.getMessage();
                     Log.d("Weather Helper", LOG_LINE + txtResponse);
+                    queue = null;
                 }
             });
 
