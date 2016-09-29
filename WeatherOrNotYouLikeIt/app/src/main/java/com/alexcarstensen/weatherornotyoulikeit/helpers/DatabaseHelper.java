@@ -120,7 +120,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
         String query = "SELECT * FROM " + FeedEntry.TABLE_NAME +
                         " WHERE " + FeedEntry.COLUMN_DATE + " > strftime('%Y-%m-%d %H:%M',datetime('now','-1 day'))"+
-                        " ORDER BY date("+ FeedEntry.COLUMN_DATE +")";
+                        " ORDER BY date("+ FeedEntry.COLUMN_DATE +") DESC";
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
