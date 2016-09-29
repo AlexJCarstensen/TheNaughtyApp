@@ -23,6 +23,8 @@ import android.widget.Toast;
 import com.alexcarstensen.weatherornotyoulikeit.helpers.WeatherService;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -190,6 +192,8 @@ public class MainActivity extends AppCompatActivity {
             if(weatherService != null)
             {
                 weatherList = weatherService.GetNewWeatherList();
+
+                _fragmentHistoryWeather.setWeatherList(weatherList);
 
                 //TODO: Update the list!
             }
