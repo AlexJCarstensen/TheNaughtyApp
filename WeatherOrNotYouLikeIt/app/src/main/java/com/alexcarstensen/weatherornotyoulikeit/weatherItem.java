@@ -7,6 +7,7 @@ package com.alexcarstensen.weatherornotyoulikeit;
 
 public class weatherItem {
 
+    private int _id;
     private String _weatherStatus;
     private String _date;
     private String _temperature;
@@ -23,6 +24,9 @@ public class weatherItem {
         this._time = time;
         this.resultCode = weatherResultCode;
     }
+
+    public int getID() {return _id;}
+    public void setID(int id) {this._id = id;}
 
     public String getWeatherStatus() {return _weatherStatus;}
     public void setWeatherStatus(String weatherStatus) {

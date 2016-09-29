@@ -11,20 +11,21 @@ public class WeatherDAO {
     private int _id;
     private String _description;
     private float _temperature;
-    private Timestamp _timestamp;
+    private String _timestamp;
 
     public WeatherDAO(){}
 
-    public WeatherDAO(String description, float temperature, Timestamp timestamp){
+    public WeatherDAO(String description, float temperature, String timestamp){
         this._description = description;
         this._temperature = temperature;
         this._timestamp = timestamp;
     }
 
-    /*Get ID*/
+    /*Get and SET ID*/
     public int getID(){
         return this._id;
     }
+    public void setID(int ID){ this._id = ID; }
 
     /*Get and set description*/
     public void setDescription(String description){
@@ -45,11 +46,11 @@ public class WeatherDAO {
     }
 
     /*Get and set Timestamp*/
-    public void setTimestamp(Timestamp timestamp){
+    public void setTimestamp(String timestamp){
         this._timestamp = timestamp;
     }
 
-    public Timestamp getTimestamp(){
+    public String getTimestamp(){
         return this._timestamp;
     }
 
