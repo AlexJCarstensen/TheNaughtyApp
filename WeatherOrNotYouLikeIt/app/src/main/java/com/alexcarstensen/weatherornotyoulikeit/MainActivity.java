@@ -19,6 +19,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.Toast;
 
 
 import com.alexcarstensen.weatherornotyoulikeit.helpers.WeatherService;
@@ -46,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
         weatherFilter.addAction(WeatherService.BROADCAST_WEATHER_UPDATE);
         LocalBroadcastManager.getInstance(MainActivity.this).registerReceiver(onWeatherUpdate, weatherFilter);
 
+//        setupConnectionToWeatherService();
+//        Intent bindIntent = new Intent(MainActivity.this, WeatherService.class);
+//        bindService(bindIntent,weatherServiceConnection, Context.BIND_AUTO_CREATE);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -55,24 +59,38 @@ public class MainActivity extends AppCompatActivity {
                  //       .setAction("Action", null).show();
 
                 //For debugging
-                //weatherItem wObj = new weatherItem("Weather #" + (i+1), "Date #" + (i+1),"Temp #" + (i+1),"Time #" + (i+1),0);
-                //FragmentManager fm = getSupportFragmentManager();
-                //content_history_weather_fragment fragment = (content_history_weather_fragment) fm.findFragmentById(R.id.fragment_history_weather);
-                //fragment.setWeatherObject(wObj);
-                //i++;
+                /*weatherItem wObj = new weatherItem("Weather #" + (i+1), "Date #" + (i+1),"Temp #" + (i+1),"Time #" + (i+1),0);
+                FragmentManager fm = getSupportFragmentManager();
+                content_history_weather_fragment fragment = (content_history_weather_fragment) fm.findFragmentById(R.id.fragment_history_weather);
+                fragment.setWeatherObject(wObj);
+                i++;
+                */
 
-                //For web debugging
-                Intent bindIntent = new Intent(MainActivity.this, WeatherService.class);
+                // For web debugging
+//                if(weatherService != null) {
+//                    weather = weatherService.GetNewWeather();
+                    weather = new weatherItem("Cloudy", "20160930","13.1","12:45:12",0);
 
-                bindService(bindIntent,weatherServiceConnection, Context.BIND_AUTO_CREATE);
-
-
-
+                    if(weather !=null) {
+                        FragmentManager fragMan = getSupportFragmentManager();
+                        content_weather_fragment fragment = (content_weather_fragment) fragMan.findFragmentById(R.id.fragment_weather);
+                        fragment.setCurrentWeather(weather);
+                        Toast.makeText(getApplicationContext(), R.string.txtUpdateWeather, Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                    {
+                        Toast.makeText(getApplicationContext(), R.string.txtUnableToUpdateWeather, Toast.LENGTH_SHORT).show();
+                    }
+//                }
+//                else
+//                {
+//                    Toast.makeText(getApplicationContext(), R.string.txtUnableToUpdateWeather, Toast.LENGTH_SHORT).show();
+//                }
 
             }
         });
 
-        setupConnectionToWeatherService();
+
 
     }
 
@@ -114,4 +132,10 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+
+//    protected void OnDestroy(){
+//        super.onDestroy();
+//        unbindService(weatherServiceConnection);
+//
+//    }
 }
