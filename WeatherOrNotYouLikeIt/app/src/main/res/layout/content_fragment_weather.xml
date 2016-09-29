@@ -9,7 +9,6 @@
         android:layout_height="128dp"
         android:id="@+id/imageViewCurrentWeatherStatus"
         android:src="@drawable/noinfo"
-        android:background="#000000"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"

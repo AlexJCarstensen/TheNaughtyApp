@@ -41,9 +41,11 @@ public class content_weather_fragment extends Fragment {
 
                 TextView txtTemp = (TextView) view.findViewById(R.id.textViewCurrentTemp);
                 txtTemp.setText(_weatherItem.getTemperature().concat("°"));
+                resNum = savedInstanceState.getInt(STATE_CURRENT_WEATHER_ICON);
 
                 ImageView viewCurrentWeatherStatus = (ImageView) view.findViewById(R.id.imageViewCurrentWeatherStatus);
                 viewCurrentWeatherStatus.setImageResource(resNum);
+
             }
         }
 
