@@ -13,7 +13,7 @@ import java.security.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.security.Timestamp;
-
+import com.alexcarstensen.weatherornotyoulikeit.weatherItem;
 
 /**
  * Created by ajc on 22-09-2016.
@@ -24,15 +24,17 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     private static FeedReaderContract.FeedEntry FeedEntry;
 
     private static final String TEXT_TYPE = " TEXT";
-    private static final String FLOAT_TYPE = " FLOAT";
+    private static final String INTERGER_TYPE = " INTERGER";
 
     private static final String COMMA_SEP = ",";
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + FeedReaderContract.FeedEntry.TABLE_NAME + " (" +
-                    FeedEntry.COLUMN_NAME_ID + " INTEGER PRIMARY KEY," +
-                    FeedEntry.COLUMN_NAME_DESCRIPTION + TEXT_TYPE + COMMA_SEP +
-                    FeedEntry.COLUMN_NAME_TEMPERATURE + FLOAT_TYPE + COMMA_SEP +
-                    FeedEntry.COLUMN_NAME_TIMESTAMP + TEXT_TYPE + " )";
+                    FeedEntry.COLUMN_ID + " INTEGER PRIMARY KEY," +
+                    FeedEntry.COLUMN_WEATHERSTATUS + TEXT_TYPE + COMMA_SEP +
+                    FeedEntry.COLUMN_DATE + TEXT_TYPE + COMMA_SEP +
+                    FeedEntry.COLUMN_TEMPERATURE + TEXT_TYPE + COMMA_SEP +
+                    FeedEntry.COLUMN_TIME + TEXT_TYPE + COMMA_SEP +
+                    FeedEntry.COLUMN_RESULTCODE + INTERGER_TYPE + " )";
 
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + FeedReaderContract.FeedEntry.TABLE_NAME;
@@ -43,6 +45,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+
     }
 
     @Override
@@ -61,11 +64,13 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    public void addWeather(WeatherDAO weather){
+    public void addWeather(weatherItem _weatherItem){
         ContentValues values = new ContentValues();
-        values.put(FeedEntry.COLUMN_NAME_DESCRIPTION, weather.getDescription());
-        values.put(FeedEntry.COLUMN_NAME_TEMPERATURE, weather.getTemperature());
-        values.put(FeedEntry.COLUMN_NAME_TIMESTAMP, weather.getTimestamp());
+        values.put(FeedEntry.COLUMN_WEATHERSTATUS, _weatherItem.getWeatherStatus());
+        values.put(FeedEntry.COLUMN_DATE, _weatherItem.getDate());
+        values.put(FeedEntry.COLUMN_TEMPERATURE, _weatherItem.getTemperature());
+        values.put(FeedEntry.COLUMN_TIME, _weatherItem.getTime());
+        values.put(FeedEntry.COLUMN_RESULTCODE, _weatherItem.getResultCode());
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -73,23 +78,31 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         db.close();
     }
 
-    public WeatherDAO findWeather(String WeatherDescription){
+    public static int getDatabaseVersion() {
+        return DATABASE_VERSION;
+    }
+
+
+    public weatherItem findWeather(String WeatherStatus){
         String query = "SELECT * FROM " + FeedEntry.TABLE_NAME +
-                        " WHERE " + FeedEntry.COLUMN_NAME_DESCRIPTION +
-                        " =  \"" + WeatherDescription + "\"";
+                        " WHERE " + FeedEntry.COLUMN_WEATHERSTATUS +
+                        " =  \"" + WeatherStatus + "\"";
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
 
-        WeatherDAO weather = new WeatherDAO();
+        weatherItem weather = new weatherItem();
 
         if (cursor.moveToFirst()) {
             cursor.moveToFirst();
 
-            weather.setID(Integer.parseInt(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_NAME_ID))));
-            weather.setDescription(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_NAME_DESCRIPTION)));
-            weather.setTemperature(Float.parseFloat(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_NAME_TEMPERATURE))));
-            weather.setTimestamp(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_NAME_TIMESTAMP)));
+            weather.setID(Integer.parseInt(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_ID))));
+            weather.setWeatherStatus(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_WEATHERSTATUS)));
+            weather.setDate(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_DATE)));
+            weather.setTemperature(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_TEMPERATURE)));
+            weather.setTime(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_TIME)));
+            weather.setResultCode(Integer.parseInt(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_RESULTCODE))));
+
             cursor.close();
         } else {
             weather = null;

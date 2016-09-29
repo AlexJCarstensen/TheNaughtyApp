@@ -14,10 +14,12 @@ public final class FeedReaderContract {
     /* Inner class that defines the table contents */
     public static class FeedEntry implements BaseColumns {
         public static final String TABLE_NAME = "WeatherTable";
-        public static final String COLUMN_NAME_ID = "WeatherId";
-        public static final String COLUMN_NAME_DESCRIPTION = "description";
-        public static final String COLUMN_NAME_TEMPERATURE = "temperature";
-        public static final String COLUMN_NAME_TIMESTAMP = "timestamp";
+        public static final String COLUMN_ID = "WeatherId";
+        public static final String COLUMN_WEATHERSTATUS = "weatherStatus";
+        public static final String COLUMN_DATE = "date";
+        public static final String COLUMN_TEMPERATURE = "temperature";
+        public static final String COLUMN_TIME = "time";
+        public static final String COLUMN_RESULTCODE = "resultCode";
     }
 
 }

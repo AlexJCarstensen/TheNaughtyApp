@@ -18,6 +18,7 @@ public class weatherItem  implements Parcelable{
     private String _intentAction;
     private int resultCode;
 
+    public weatherItem(){};
 
     public weatherItem(String weatherStatus, String date, String temperature, String time, int weatherResultCode){
 
