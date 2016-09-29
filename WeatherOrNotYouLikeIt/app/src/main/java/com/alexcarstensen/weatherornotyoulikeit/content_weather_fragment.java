@@ -1,5 +1,7 @@
 package com.alexcarstensen.weatherornotyoulikeit;
 
+import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 
 public class content_weather_fragment extends Fragment {
 
@@ -47,8 +50,15 @@ public class content_weather_fragment extends Fragment {
     public void setCurrentWeather(weatherItem weather){
 
         _weatherItem = weather;
-        //ImageView viewCurrentWeatherStatus = (ImageView) view.findViewById(R.id.imageViewCurrentWeatherStatus);
-        //viewCurrentWeatherStatus.setImageDrawable(SOMETHING);
+        ImageView viewCurrentWeatherStatus = (ImageView) view.findViewById(R.id.imageViewCurrentWeatherStatus);
+
+        //Trying to find the right icon to show
+        String uri = "drawable/i" + _weatherItem.getIcon();
+        int iconResource = getResources().getIdentifier(uri, "drawable", MainActivity.PACKAGE_NAME);
+
+        //Settting the image resource to the right icon
+        viewCurrentWeatherStatus.setImageResource(iconResource);
+
 
         TextView txtCurrentWeather = (TextView) view.findViewById(R.id.textViewCurrentWeatherStatus);
         txtCurrentWeather.setText(_weatherItem.getWeatherStatus());

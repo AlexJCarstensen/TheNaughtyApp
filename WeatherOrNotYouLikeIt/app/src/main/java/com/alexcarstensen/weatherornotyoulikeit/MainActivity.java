@@ -29,6 +29,10 @@ import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity {
 
+    //For fragment use
+    public static String PACKAGE_NAME;
+
+
     //Alarm
     private AlarmManager alarmMng;
     private PendingIntent alarmIntent;
@@ -52,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        PACKAGE_NAME = getApplicationContext().getPackageName();
 
         _fm = getSupportFragmentManager();
         _fragmentHistoryWeather = (content_history_weather_fragment) _fm.findFragmentById(R.id.fragment_history_weather);
@@ -143,6 +149,8 @@ public class MainActivity extends AppCompatActivity {
             alarmIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
             alarmMng.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, AlarmManager.INTERVAL_HALF_HOUR, AlarmManager.INTERVAL_HALF_HOUR, alarmIntent);
         }
+
+
     }
 
 
@@ -180,6 +188,8 @@ public class MainActivity extends AppCompatActivity {
                 //Checking if it works when it receives the update
 
                 if(weather !=null) {
+
+                    int iconResource = getResources().getIdentifier("drawableName", "drawable", getPackageName());
 
                         _fragmentWeather.setCurrentWeather(weather);
                         Toast.makeText(getApplicationContext(), R.string.txtUpdateWeather, Toast.LENGTH_SHORT).show();

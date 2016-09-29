@@ -21,6 +21,6 @@ public class AlarmReceiver extends BroadcastReceiver {
         Intent weatherIntent = new Intent(context, WeatherService.class);
 
         context.startService(weatherIntent);
-        //throw new UnsupportedOperationException("Not yet implemented");
+
     }
 }

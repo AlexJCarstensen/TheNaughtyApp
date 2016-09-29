@@ -46,6 +46,10 @@ public class WeatherService extends Service {
     private final WeatherBinder binder = new WeatherBinder();
     private final String AARHUS_ID = "2624652";
 
+
+    private DatabaseHelper dbHelper = new DatabaseHelper(this);
+
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -59,12 +63,18 @@ public class WeatherService extends Service {
         super.onCreate();
 
         Log.d("Service", LOG_LINE + "onCreate() called");
+       GetWeatherDataForActivity();
 
 
 
 
 
+    }
 
+    private void GetWeatherDataForActivity()
+    {
+        GetNewestListFromDb();
+        GetFreshWeather();
     }
 
     public void GetFreshWeather()
@@ -89,9 +99,34 @@ public class WeatherService extends Service {
 
     public void GetNewestListFromDb()
     {
-        DatabaseHelper dbHelper = new DatabaseHelper(this);
 
-        weatherList = dbHelper.getWeatherList();
+
+        AsyncTask<Object, String, String> task = new AsyncTask<Object, String, String>() {
+            @Override
+            protected String doInBackground(Object[] params) {
+
+
+                weatherList = dbHelper.getWeatherList();
+
+                String s = "something";
+                return s;
+            }
+
+
+            @Override
+            protected void onPostExecute(String stringResult) {
+                super.onPostExecute(stringResult);
+
+                Log.d("Service", LOG_LINE + "onPostExecute() called");
+
+                ListWeatherUpdateReady();
+
+            }
+        };
+
+        task.execute();
+
+
     }
 
     private void FreshWeatherUpdateReady()
@@ -232,10 +267,6 @@ public class WeatherService extends Service {
                                 weatherListDetails = StringToWeatherDetails(txtResponse);
 
                                 weatherItem tempItem = WeatherDetailsToWeather(weatherListDetails);
-
-                                //TODO: save weather in db and send broadcast with list ready
-
-                                DatabaseHelper dbHelper = new DatabaseHelper(context);
 
                                 SQLiteDatabase sb = dbHelper.getWritableDatabase();
 
