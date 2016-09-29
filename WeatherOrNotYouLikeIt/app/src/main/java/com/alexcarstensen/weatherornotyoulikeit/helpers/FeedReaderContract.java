@@ -18,7 +18,6 @@ public final class FeedReaderContract {
         public static final String COLUMN_WEATHERSTATUS = "weatherStatus";
         public static final String COLUMN_DATE = "date";
         public static final String COLUMN_TEMPERATURE = "temperature";
-        public static final String COLUMN_TIME = "time";
         public static final String COLUMN_RESULTCODE = "resultCode";
     }
 
