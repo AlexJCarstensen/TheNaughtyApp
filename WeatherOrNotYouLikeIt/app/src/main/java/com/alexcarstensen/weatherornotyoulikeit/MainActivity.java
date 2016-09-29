@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     //Alarm
     private AlarmManager alarmMng;
     private PendingIntent alarmIntent;
+    private final int ALARM_UNIQUE_ID = 0;
 
 
     private WeatherService weatherService;
@@ -69,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
         setupConnectionToWeatherService();
         Intent bindIntent = new Intent(MainActivity.this, WeatherService.class);
-        isBound =getApplicationContext().bindService(bindIntent,weatherServiceConnection, Context.BIND_AUTO_CREATE);
+        isBound = getApplicationContext().bindService(bindIntent, weatherServiceConnection, Context.BIND_AUTO_CREATE);
 
 //        DatabaseHelper databaseHelper = new DatabaseHelper(this);
 //        SQLiteDatabase sb = databaseHelper.getWritableDatabase();
@@ -87,13 +88,12 @@ public class MainActivity extends AppCompatActivity {
 //        databaseHelper.addWeather(wd3);
 
 
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               // Snackbar.make(view, R.string.txtUpdateWeather, Snackbar.LENGTH_LONG)
-                 //       .setAction("Action", null).show();
+                // Snackbar.make(view, R.string.txtUpdateWeather, Snackbar.LENGTH_LONG)
+                //       .setAction("Action", null).show();
 
                 //For debugging
                 /*weatherItem wObj = new weatherItem("Weather #" + (i+1), "Date #" + (i+1),"Temp #" + (i+1),"Time #" + (i+1),0);
@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // For web debugging
 //                if(weatherService != null) {
-                    weatherService.GetFreshWeather();
+                weatherService.GetFreshWeather();
 //                    weather = new weatherItem("Cloudy", "20160930","13.1","12:45:12",0,"dummyPath");
 
 //                    if(weather !=null) {
@@ -129,10 +129,20 @@ public class MainActivity extends AppCompatActivity {
 
 
         //Setting up Alarm to make the service run every 30 min.
-        alarmMng = (AlarmManager)MainActivity.this.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
-        alarmIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
-        alarmMng.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, AlarmManager.INTERVAL_HALF_HOUR, AlarmManager.INTERVAL_HALF_HOUR, alarmIntent);
+        //Checking if alarm is sat
+        boolean alarmUp = (PendingIntent.getBroadcast(this, 0,
+                new Intent(MainActivity.this, AlarmReceiver.class).setAction("myaction"),
+                PendingIntent.FLAG_NO_CREATE) != null);
+
+        if (!alarmUp) {
+
+            //Setting alarm if not sat
+            alarmMng = (AlarmManager) MainActivity.this.getSystemService(Context.ALARM_SERVICE);
+            Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
+            intent.setAction("myaction");
+            alarmIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
+            alarmMng.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, AlarmManager.INTERVAL_HALF_HOUR, AlarmManager.INTERVAL_HALF_HOUR, alarmIntent);
+        }
     }
 
 
@@ -195,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
 
                 _fragmentHistoryWeather.setWeatherList(weatherList);
 
-                //TODO: Update the list!
+
             }
         }
     };

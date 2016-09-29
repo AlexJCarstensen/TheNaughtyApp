@@ -62,7 +62,7 @@ public class WeatherService extends Service {
 
 
 
-        //TODO: Every half hour, update weather info, but first see if it works
+
 
 
     }
@@ -85,6 +85,13 @@ public class WeatherService extends Service {
         helper.GetWeatherForDb(AARHUS_ID, this);
 
         return START_NOT_STICKY;
+    }
+
+    public void GetNewestListFromDb()
+    {
+        DatabaseHelper dbHelper = new DatabaseHelper(this);
+
+        weatherList = dbHelper.getWeatherList();
     }
 
     private void FreshWeatherUpdateReady()
@@ -160,11 +167,21 @@ public class WeatherService extends Service {
 
                             txtResponse = response;
 
-                            freshWeatherDetails = StringToWeatherDetails(txtResponse);
+                            try
+                            {
+                                freshWeatherDetails = StringToWeatherDetails(txtResponse);
 
-                            freshWeather = WeatherDetailsToWeather(freshWeatherDetails);
+                                freshWeather = WeatherDetailsToWeather(freshWeatherDetails);
 
-                            FreshWeatherUpdateReady();
+                                FreshWeatherUpdateReady();
+
+                            }
+                            catch (Exception e)
+                            {
+                                Log.d("Service", LOG_LINE + "Error in response");
+                                queue = null;
+                            }
+
 
                             queue = null;
 
@@ -210,22 +227,32 @@ public class WeatherService extends Service {
 
                             txtResponse = response;
 
-                             weatherListDetails = StringToWeatherDetails(txtResponse);
+                            try
+                            {
+                                weatherListDetails = StringToWeatherDetails(txtResponse);
 
-                            weatherItem tempItem = WeatherDetailsToWeather(weatherListDetails);
+                                weatherItem tempItem = WeatherDetailsToWeather(weatherListDetails);
 
-                            //TODO: save weather in db and send broadcast with list ready
+                                //TODO: save weather in db and send broadcast with list ready
 
-                            DatabaseHelper dbHelper = new DatabaseHelper(context);
+                                DatabaseHelper dbHelper = new DatabaseHelper(context);
 
-                            SQLiteDatabase sb = dbHelper.getWritableDatabase();
+                                SQLiteDatabase sb = dbHelper.getWritableDatabase();
 
-                            dbHelper.addWeather(tempItem);
+                                dbHelper.addWeather(tempItem);
 
-                            weatherList = dbHelper.getWeatherList();
+                                weatherList = dbHelper.getWeatherList();
 
-                            ListWeatherUpdateReady();
-                            Log.d("Weather Helper#11", LOG_LINE + "Database written to: " + response);
+                                ListWeatherUpdateReady();
+                                Log.d("Weather Helper#11", LOG_LINE + "Database written to: " + response);
+                            }
+                            catch(Exception e)
+                            {
+                                Log.d("Service", LOG_LINE + "Error in response");
+                                queue = null;
+                            }
+
+
                             queue = null;
 
                         }
@@ -283,6 +310,8 @@ public class WeatherService extends Service {
 
             return tempItem;
         }
+
+
 
 
     }
