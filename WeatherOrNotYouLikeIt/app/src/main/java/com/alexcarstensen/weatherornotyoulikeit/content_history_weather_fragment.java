@@ -43,22 +43,22 @@ public class content_history_weather_fragment extends Fragment {
                 container, false);
 
 
-        DatabaseHelper databaseHelper = new DatabaseHelper(view.getContext());
-        SQLiteDatabase sb = databaseHelper.getWritableDatabase();
-        List<weatherItem> weatherItemList = databaseHelper.getWeatherList();
-
-        listAdaptorObj = new listAdaptor(view.getContext(), (ArrayList<weatherItem>) weatherItemList);
-        weatherHistoryListView = (ListView)view.findViewById(R.id.listViewWeatherHistory);
-        weatherHistoryListView.setAdapter(listAdaptorObj);
-
-//        if(savedInstanceState != null){
+//        DatabaseHelper databaseHelper = new DatabaseHelper(view.getContext());
+//        SQLiteDatabase sb = databaseHelper.getWritableDatabase();
+//        List<weatherItem> weatherItemList = databaseHelper.getWeatherList();
 //
-//            weatherItemList = savedInstanceState.getParcelableArrayList(STATE_WEATHER_ARRAY);
-//            listAdaptorObj = new listAdaptor(view.getContext(), weatherItemList);
-//            weatherHistoryListView = (ListView)view.findViewById(R.id.listViewWeatherHistory);
-//            weatherHistoryListView.setAdapter(listAdaptorObj);
-//
-//        }
+//        listAdaptorObj = new listAdaptor(view.getContext(), (ArrayList<weatherItem>) weatherItemList);
+//        weatherHistoryListView = (ListView)view.findViewById(R.id.listViewWeatherHistory);
+//        weatherHistoryListView.setAdapter(listAdaptorObj);
+
+        if(savedInstanceState != null){
+
+            weatherItemList = savedInstanceState.getParcelableArrayList(STATE_WEATHER_ARRAY);
+            listAdaptorObj = new listAdaptor(view.getContext(), weatherItemList);
+            weatherHistoryListView = (ListView)view.findViewById(R.id.listViewWeatherHistory);
+            weatherHistoryListView.setAdapter(listAdaptorObj);
+
+        }
         /*
         for(int i = 0; i < 5; i++){
             weatherItemList.add(new weatherItem("Weather #" + (i+1), "Date #" + (i+1),"Temp #" + (i+1),"Time #" + (i+1),0));
@@ -72,19 +72,19 @@ public class content_history_weather_fragment extends Fragment {
 
     }
 
-    public void setWeatherObject(weatherItem weather){
-        weatherItemList.add(0,weather);
+    public void setWeatherList(ArrayList<weatherItem> weatherItemList_){
+        weatherItemList = weatherItemList_;
         listAdaptorObj = new listAdaptor(view.getContext(), weatherItemList);
         weatherHistoryListView = (ListView)view.findViewById(R.id.listViewWeatherHistory);
         weatherHistoryListView.setAdapter(listAdaptorObj);
     }
 
-//    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//        outState.putParcelableArrayList(STATE_WEATHER_ARRAY, weatherItemList);
-//
-//    }
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(STATE_WEATHER_ARRAY, weatherItemList);
+
+    }
 
 
 }

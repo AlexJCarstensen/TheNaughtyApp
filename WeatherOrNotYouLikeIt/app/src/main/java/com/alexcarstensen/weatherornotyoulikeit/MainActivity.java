@@ -60,6 +60,11 @@ public class MainActivity extends AppCompatActivity {
         weatherFilter.addAction(WeatherService.BROADCAST_FRESH_WEATHER_UPDATE);
         LocalBroadcastManager.getInstance(MainActivity.this).registerReceiver(onWeatherUpdate, weatherFilter);
 
+        IntentFilter weatherListFilter = new IntentFilter();
+        weatherListFilter.addAction(WeatherService.BROADCAST_WEATHERLIST_UPDATE);
+        LocalBroadcastManager.getInstance(MainActivity.this).registerReceiver(onListWeatherUpdate, weatherListFilter);
+
+
         setupConnectionToWeatherService();
         Intent bindIntent = new Intent(MainActivity.this, WeatherService.class);
         isBound =getApplicationContext().bindService(bindIntent,weatherServiceConnection, Context.BIND_AUTO_CREATE);
@@ -180,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver onListWeatherUpdate = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("MainActivity", WeatherService.LOG_LINE + "onFreshWeatherUpdate() called");
+            Log.d("MainActivity", WeatherService.LOG_LINE + "onListWeatherUpdate() called");
 
             if(weatherService != null)
             {

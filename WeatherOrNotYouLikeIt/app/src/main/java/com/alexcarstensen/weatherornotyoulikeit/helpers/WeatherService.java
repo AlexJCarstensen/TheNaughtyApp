@@ -206,7 +206,7 @@ public class WeatherService extends Service {
                         @Override
                         public void onResponse(String response) {
 
-                            Log.d("Weather Helper#3", LOG_LINE + "Response: " + response);
+                            Log.d("Weather Helper#10", LOG_LINE + "Response: " + response);
 
                             txtResponse = response;
 
@@ -225,7 +225,7 @@ public class WeatherService extends Service {
                             weatherList = dbHelper.getWeatherList();
 
                             ListWeatherUpdateReady();
-
+                            Log.d("Weather Helper#11", LOG_LINE + "Database written to: " + response);
                             queue = null;
 
                         }
