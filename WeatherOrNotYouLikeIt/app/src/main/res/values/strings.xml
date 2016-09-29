@@ -1,11 +1,11 @@
 <resources>
-    <string name="app_name">Weather or not you like it</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="app_name" translatable="false">Weather or not you like it</string>
+    <string name="title_activity_main" translatable="false">MainActivity</string>
     <string name="txtWeather">Weather:</string>
-    <string name="txtCity">City</string>
+    <string name="txtCity" translatable="false">Aarhus</string>
     <string name="txtCurrentWeather">Current weather:</string>
     <string name="txtTempDegree">XX°</string>
-    <string name="txtStatus">Status</string>
+    <string name="txtStatus" translatable="false">Status</string>
     <string name="txtUpdateWeather">Weather updated</string>
     <string name="txtUnableToUpdateWeather">Could not update weather</string>
 

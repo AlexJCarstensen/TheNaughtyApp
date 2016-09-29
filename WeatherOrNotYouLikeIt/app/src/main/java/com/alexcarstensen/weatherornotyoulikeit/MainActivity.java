@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
@@ -24,10 +25,12 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 
+import com.alexcarstensen.weatherornotyoulikeit.helpers.DatabaseHelper;
 import com.alexcarstensen.weatherornotyoulikeit.helpers.WeatherService;
 
 import java.util.ArrayList;
-
+import java.util.Iterator;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -64,6 +67,23 @@ public class MainActivity extends AppCompatActivity {
         Intent bindIntent = new Intent(MainActivity.this, WeatherService.class);
         isBound =getApplicationContext().bindService(bindIntent,weatherServiceConnection, Context.BIND_AUTO_CREATE);
 
+        DatabaseHelper databaseHelper = new DatabaseHelper(this);
+        SQLiteDatabase sb = databaseHelper.getWritableDatabase();
+        weatherItem wd0 = new weatherItem("RAIN", "2016-09-28", "13.4", "23:31", 23,"er");
+//
+        weatherItem wd1 = new weatherItem("SKY", "2016-09-25", "13.4", "11:31", 24,"er");
+//
+        weatherItem wd2 = new weatherItem("SUN", "2016-09-29", "13.4", "12:31", 26,"er");
+//
+        weatherItem wd3 = new weatherItem("MOON", "2016-09-29", "13.4", "13:31", 27,"er");
+//
+        databaseHelper.addWeather(wd0);
+        databaseHelper.addWeather(wd1);
+        databaseHelper.addWeather(wd2);
+        databaseHelper.addWeather(wd3);
+
+
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                 // For web debugging
 //                if(weatherService != null) {
 //                    weather = weatherService.GetNewWeather();
-                    weather = new weatherItem("Cloudy", "20160930","13.1","12:45:12",0);
+                    weather = new weatherItem("Cloudy", "20160930","13.1","12:45:12",0,"dummyPath");
 
                     if(weather !=null) {
                         FragmentManager fragMan = getSupportFragmentManager();
@@ -104,13 +124,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
-
         //Setting up Alarm to make the service run every 30 min.
-        alarmMng = (AlarmManager)MainActivity.this.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
-        alarmIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
-        alarmMng.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, AlarmManager.INTERVAL_HALF_HOUR, AlarmManager.INTERVAL_HALF_HOUR, alarmIntent);
+//        alarmMng = (AlarmManager)MainActivity.this.getSystemService(Context.ALARM_SERVICE);
+//        Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
+//        alarmIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
+//        alarmMng.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, AlarmManager.INTERVAL_HALF_HOUR, AlarmManager.INTERVAL_HALF_HOUR, alarmIntent);
 
     }
 

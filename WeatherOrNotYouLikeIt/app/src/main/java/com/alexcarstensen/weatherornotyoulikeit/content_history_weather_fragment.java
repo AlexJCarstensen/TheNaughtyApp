@@ -1,15 +1,22 @@
 package com.alexcarstensen.weatherornotyoulikeit;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.alexcarstensen.weatherornotyoulikeit.helpers.DatabaseHelper;
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 public class content_history_weather_fragment extends Fragment {
 
@@ -36,15 +43,22 @@ public class content_history_weather_fragment extends Fragment {
                 container, false);
 
 
+        DatabaseHelper databaseHelper = new DatabaseHelper(view.getContext());
+        SQLiteDatabase sb = databaseHelper.getWritableDatabase();
+        List<weatherItem> weatherItemList = databaseHelper.getWeatherList();
 
-        if(savedInstanceState != null){
+        listAdaptorObj = new listAdaptor(view.getContext(), (ArrayList<weatherItem>) weatherItemList);
+        weatherHistoryListView = (ListView)view.findViewById(R.id.listViewWeatherHistory);
+        weatherHistoryListView.setAdapter(listAdaptorObj);
 
-            weatherItemList = savedInstanceState.getParcelableArrayList(STATE_WEATHER_ARRAY);
-            listAdaptorObj = new listAdaptor(view.getContext(), weatherItemList);
-            weatherHistoryListView = (ListView)view.findViewById(R.id.listViewWeatherHistory);
-            weatherHistoryListView.setAdapter(listAdaptorObj);
-
-        }
+//        if(savedInstanceState != null){
+//
+//            weatherItemList = savedInstanceState.getParcelableArrayList(STATE_WEATHER_ARRAY);
+//            listAdaptorObj = new listAdaptor(view.getContext(), weatherItemList);
+//            weatherHistoryListView = (ListView)view.findViewById(R.id.listViewWeatherHistory);
+//            weatherHistoryListView.setAdapter(listAdaptorObj);
+//
+//        }
         /*
         for(int i = 0; i < 5; i++){
             weatherItemList.add(new weatherItem("Weather #" + (i+1), "Date #" + (i+1),"Temp #" + (i+1),"Time #" + (i+1),0));
@@ -65,12 +79,12 @@ public class content_history_weather_fragment extends Fragment {
         weatherHistoryListView.setAdapter(listAdaptorObj);
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(STATE_WEATHER_ARRAY, weatherItemList);
-
-    }
+//    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        outState.putParcelableArrayList(STATE_WEATHER_ARRAY, weatherItemList);
+//
+//    }
 
 
 }

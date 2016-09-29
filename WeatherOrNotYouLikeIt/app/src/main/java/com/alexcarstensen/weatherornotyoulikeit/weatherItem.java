@@ -21,13 +21,14 @@ public class weatherItem  implements Parcelable{
 
     public weatherItem(){};
 
-    public weatherItem(String weatherStatus, String date, String temperature, String time, int weatherResultCode){
+    public weatherItem(String weatherStatus, String date, String temperature, String time, int weatherResultCode, String icon){
 
         this._weatherStatus = weatherStatus;
         this._date = date;
         this._temperature = temperature;
         this._time = time;
         this.resultCode = weatherResultCode;
+        this._icon = icon;
     }
 
     protected weatherItem(Parcel in) {
@@ -38,6 +39,7 @@ public class weatherItem  implements Parcelable{
         _time = in.readString();
         _intentAction = in.readString();
         resultCode = in.readInt();
+        _icon = in.readString();
     }
 
     public static final Creator<weatherItem> CREATOR = new Creator<weatherItem>() {
@@ -107,5 +109,6 @@ public class weatherItem  implements Parcelable{
         dest.writeString(_time);
         dest.writeString(_intentAction);
         dest.writeInt(resultCode);
+        dest.writeString(_icon);
     }
 }

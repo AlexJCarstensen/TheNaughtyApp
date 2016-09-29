@@ -119,7 +119,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         Calendar calendar = Calendar.getInstance();
 
         String query = "SELECT * FROM " + FeedEntry.TABLE_NAME +
-                        " WHERE " + FeedEntry.COLUMN_DATE + " > strftime('%d-%m-%Y %H:%M',datetime('now','-1 day'))"+
+                        " WHERE " + FeedEntry.COLUMN_DATE + " > strftime('%Y-%m-%d %H:%M',datetime('now','-1 day'))"+
                         " ORDER BY date("+ FeedEntry.COLUMN_DATE +")";
 
         SQLiteDatabase db = this.getWritableDatabase();

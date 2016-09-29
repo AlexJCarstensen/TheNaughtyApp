@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Weather or not you like it</string>
+    <string name="txtCurrentWeather">Nuværende vejr:</string>
+    <string name="txtUnableToUpdateWeather">Kan ikke opdatere vejret</string>
+    <string name="txtUpdateWeather">Vejr updateret</string>
+    <string name="txtWeather">Vejr:</string>
+</resources>

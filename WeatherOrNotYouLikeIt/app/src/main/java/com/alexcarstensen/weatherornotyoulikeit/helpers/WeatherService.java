@@ -198,7 +198,7 @@ public class WeatherService extends Service {
 
             Log.d("tempString", LOG_LINE + tempearture);
 
-            weatherItem tempItem = new weatherItem(weatherStatus, date, tempearture, time, 1); //TODO: What is response code?
+            weatherItem tempItem = new weatherItem(weatherStatus, date, tempearture, time, 1,"dummy"); //TODO: What is response code?
 
             return tempItem;
         }
