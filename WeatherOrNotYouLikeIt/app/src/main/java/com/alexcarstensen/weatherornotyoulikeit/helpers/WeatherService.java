@@ -118,13 +118,13 @@ public class WeatherService extends Service {
 
         public void GetWeather(String cityId, Context context) {
 
-            Log.d("Weather Helper", LOG_LINE + "GetWeather() called");
+            Log.d("Weather Helper#1", LOG_LINE + "GetWeather() called");
 
             if (queue == null) {
                 queue = Volley.newRequestQueue(context);
             }
 
-            Log.d("Weather Helper", LOG_LINE + "Queue created");
+            Log.d("Weather Helper#2", LOG_LINE + "Queue created");
 
             String url = WEATHER_API_CALL_HEAD + cityId + WEATHER_API_CALL_TAIL;
 
@@ -133,7 +133,7 @@ public class WeatherService extends Service {
                         @Override
                         public void onResponse(String response) {
 
-                            Log.d("Weather Helper", LOG_LINE + "Response: " + response);
+                            Log.d("Weather Helper#3", LOG_LINE + "Response: " + response);
 
                             txtResponse = response;
 
@@ -152,7 +152,7 @@ public class WeatherService extends Service {
 
 
                     txtResponse = error.getMessage();
-                    Log.d("Weather Helper", LOG_LINE + txtResponse);
+                    Log.d("Weather Helper#4", LOG_LINE + txtResponse);
                     queue = null;
                 }
             });
@@ -166,7 +166,7 @@ public class WeatherService extends Service {
         }
 
         private CityWeatherDetails StringToWeatherDetails(String stringWeather) {
-            Log.d("Weather Helper", LOG_LINE + "StringToWeather() called");
+            Log.d("Weather Helper#5", LOG_LINE + "StringToWeather() called");
             Gson gsonBuilder = new Gson();
             JsonReader reader = new JsonReader(new StringReader(stringWeather));
             reader.setLenient(true);

@@ -40,6 +40,10 @@ public class MainActivity extends AppCompatActivity {
     private WeatherService weatherService;
     private weatherItem weather;
     private ServiceConnection weatherServiceConnection;
+    private FragmentManager _fm;
+    private content_history_weather_fragment _fragment;
+
+    private boolean isBound = false;
     // For debugging
     int i = 0;
 
@@ -48,15 +52,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        _fm = getSupportFragmentManager();
+        _fragment = (content_history_weather_fragment) _fm.findFragmentById(R.id.fragment_history_weather);
 
         //Registering receiver
         IntentFilter weatherFilter = new IntentFilter();
         weatherFilter.addAction(WeatherService.BROADCAST_WEATHER_UPDATE);
         LocalBroadcastManager.getInstance(MainActivity.this).registerReceiver(onWeatherUpdate, weatherFilter);
 
-//        setupConnectionToWeatherService();
-//        Intent bindIntent = new Intent(MainActivity.this, WeatherService.class);
-//        bindService(bindIntent,weatherServiceConnection, Context.BIND_AUTO_CREATE);
+        setupConnectionToWeatherService();
+        Intent bindIntent = new Intent(MainActivity.this, WeatherService.class);
+        isBound =getApplicationContext().bindService(bindIntent,weatherServiceConnection, Context.BIND_AUTO_CREATE);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -80,8 +86,8 @@ public class MainActivity extends AppCompatActivity {
 
                     if(weather !=null) {
                         FragmentManager fragMan = getSupportFragmentManager();
-                        content_weather_fragment fragment = (content_weather_fragment) fragMan.findFragmentById(R.id.fragment_weather);
-                        fragment.setCurrentWeather(weather);
+                        content_weather_fragment fragmentCurrentWeather = (content_weather_fragment) fragMan.findFragmentById(R.id.fragment_weather);
+                        fragmentCurrentWeather.setCurrentWeather(weather);
                         Toast.makeText(getApplicationContext(), R.string.txtUpdateWeather, Toast.LENGTH_SHORT).show();
                     }
                     else
@@ -104,10 +110,18 @@ public class MainActivity extends AppCompatActivity {
         alarmMng = (AlarmManager)MainActivity.this.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
         alarmIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
-
         alarmMng.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, AlarmManager.INTERVAL_HALF_HOUR, AlarmManager.INTERVAL_HALF_HOUR, alarmIntent);
 
     }
+
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        if(isBound)
+            getApplicationContext().unbindService(weatherServiceConnection);
+    }
+
 
     private void setupConnectionToWeatherService()
     {
@@ -132,25 +146,24 @@ public class MainActivity extends AppCompatActivity {
             Log.d("MainActivity", WeatherService.LOG_LINE + "onWeatherUpdate() called");
             if(weatherService != null) {
                 weather = weatherService.GetNewWeather();
-            }
+                //Checking if it works when it receives the update
 
+                if(weather != null) {
+
+                    _fragment.setWeatherObject(weather);
+                }
+            }
             Log.d("weather item", WeatherService.LOG_LINE + weather.getWeatherStatus());
 
-
-
-            //Checking if it works when it receives the update
-            //TODO: Jeppe check if this is right!
-            FragmentManager fm = getSupportFragmentManager();
-            content_history_weather_fragment fragment = (content_history_weather_fragment) fm.findFragmentById(R.id.fragment_history_weather);
-            fragment.setWeatherObject(weather);
-            i++;
         }
     };
 
-
-//    protected void OnDestroy(){
-//        super.onDestroy();
+//    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
 //        unbindService(weatherServiceConnection);
 //
 //    }
+
+
 }

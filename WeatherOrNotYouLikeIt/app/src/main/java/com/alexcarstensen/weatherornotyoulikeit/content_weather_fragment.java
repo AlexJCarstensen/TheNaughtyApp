@@ -61,7 +61,7 @@ public class content_weather_fragment extends Fragment {
 
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+        public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         if(_weatherItem != null) {
             outState.putParcelable(STATE_CURRENT_WEATHER, _weatherItem);
