@@ -1,10 +1,8 @@
 package com.alexcarstensen.weatherornotyoulikeit;
 
-import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
+import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +15,7 @@ public class content_weather_fragment extends Fragment {
     final static String STATE_CURRENT_WEATHER = "CurrentWeather";
     View view;
     private weatherItem _weatherItem;
+    private Resources resources = null;
 
     public content_weather_fragment() {
     }
@@ -24,7 +23,7 @@ public class content_weather_fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
-
+        resources = getResources();
         view = inflater.inflate(R.layout.content_fragment_weather,
                 container, false);
 
@@ -54,10 +53,10 @@ public class content_weather_fragment extends Fragment {
 
         //Trying to find the right icon to show
         String uri = "drawable/i" + _weatherItem.getIcon();
-        int iconResource = getResources().getIdentifier(uri, "drawable", MainActivity.PACKAGE_NAME);
+        int resNum = resources.getIdentifier(uri, "drawable", MainActivity.PACKAGE_NAME);
 
         //Settting the image resource to the right icon
-        viewCurrentWeatherStatus.setImageResource(iconResource);
+        viewCurrentWeatherStatus.setImageResource(resNum);
 
 
         TextView txtCurrentWeather = (TextView) view.findViewById(R.id.textViewCurrentWeatherStatus);
