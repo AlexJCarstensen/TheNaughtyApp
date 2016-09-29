@@ -1,6 +1,8 @@
 package com.alexcarstensen.weatherornotyoulikeit;
 
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -29,6 +31,11 @@ import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity {
+
+    //Alarm
+    private AlarmManager alarmMng;
+    private PendingIntent alarmIntent;
+
 
     private WeatherService weatherService;
     private weatherItem weather;
@@ -91,6 +98,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+
+
+        //Setting up Alarm to make the service run every 30 min.
+        alarmMng = (AlarmManager)MainActivity.this.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
+        alarmIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
+
+        alarmMng.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, AlarmManager.INTERVAL_HALF_HOUR, AlarmManager.INTERVAL_HALF_HOUR, alarmIntent);
 
     }
 
