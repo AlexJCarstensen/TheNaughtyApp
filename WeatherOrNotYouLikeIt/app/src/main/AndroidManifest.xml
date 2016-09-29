@@ -19,10 +19,24 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".helpers.WeatherService"
-                 android:enabled="true"
-                android:exported="false"></service>
+        <service
+            android:name=".helpers.WeatherService"
+            android:enabled="true"
+            android:exported="false"
+            />
 
+        <receiver
+            android:name=".AlarmReceiver"
+            android:enabled="true"
+            android:exported="true">
+
+        <intent-filter>
+            <action android:name="com.alexcarstensen.weatherornotyoulikeit.FIRE" />
+
+            <category android:name="com.alexcarstensen.weatherornotyoulikeit.30MIN"/>
+        </intent-filter>
+
+            </receiver>
     </application>
 
 </manifest>

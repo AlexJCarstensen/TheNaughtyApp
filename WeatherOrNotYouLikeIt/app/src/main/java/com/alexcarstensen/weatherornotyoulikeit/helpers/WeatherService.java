@@ -39,7 +39,7 @@ public class WeatherService extends Service {
     private CityWeatherDetails weatherDetails;
     private weatherItem weather;
     private final WeatherBinder binder = new WeatherBinder();
-    private final String AARHUS_ID = "2624647";
+    private final String AARHUS_ID = "2624652";
 
     @Nullable
     @Override
@@ -159,22 +159,31 @@ public class WeatherService extends Service {
             reader.setLenient(true);
             CityWeatherDetails tempWeather = gsonBuilder.fromJson(reader, CityWeatherDetails.class);
 
-            Log.d("Weather item", LOG_LINE + "Weather status: " + tempWeather.getWeather()[0].getDescription());
-
+            if(tempWeather.getWeather()!= null && tempWeather.getWeather()[0] != null) {
+                Log.d("Weather item", LOG_LINE + "Weather status: " + tempWeather.getWeather()[0].getDescription());
+            }
             return tempWeather;
 
         }
 
         private weatherItem WeatherDetailsToWeather(CityWeatherDetails cityWeather)
         {
+
+
             String weatherStatus = cityWeather.getWeather()[0].getDescription();
             String time = new SimpleDateFormat("HH:mm").format(Calendar.getInstance().getTime());
-            String date = new SimpleDateFormat("dd/MM").format(Calendar.getInstance().getTime());
-            Double celciusTemperature = TempeatureHelper.FahrenheitToCelcius(cityWeather.getMain().getTemp());
+            String date = new SimpleDateFormat("dd-MM-yyyy").format(Calendar.getInstance().getTime());
+            Double celciusTemperature = TempeatureHelper.KelvinToCelcius(cityWeather.getMain().getTemp());
+
+            Log.d("Temp", LOG_LINE + celciusTemperature.toString());
 
             //TODO: Why the f*** Is the temperature so high?!?
 
-            String tempearture = Double.toString(celciusTemperature);
+            String tempearture = String.format("%.1f" ,celciusTemperature);
+
+            //String tempearture = celciusTemperature.toString();
+
+            Log.d("tempString", LOG_LINE + tempearture);
 
             weatherItem tempItem = new weatherItem(weatherStatus, date, tempearture, time, 1); //TODO: What is response code?
 
