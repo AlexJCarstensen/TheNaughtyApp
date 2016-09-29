@@ -28,6 +28,28 @@ public class weatherItem  implements Parcelable{
         this.resultCode = weatherResultCode;
     }
 
+    protected weatherItem(Parcel in) {
+        _id = in.readInt();
+        _weatherStatus = in.readString();
+        _date = in.readString();
+        _temperature = in.readString();
+        _time = in.readString();
+        _intentAction = in.readString();
+        resultCode = in.readInt();
+    }
+
+    public static final Creator<weatherItem> CREATOR = new Creator<weatherItem>() {
+        @Override
+        public weatherItem createFromParcel(Parcel in) {
+            return new weatherItem(in);
+        }
+
+        @Override
+        public weatherItem[] newArray(int size) {
+            return new weatherItem[size];
+        }
+    };
+
     public int getID() {return _id;}
     public void setID(int id) {this._id = id;}
 
