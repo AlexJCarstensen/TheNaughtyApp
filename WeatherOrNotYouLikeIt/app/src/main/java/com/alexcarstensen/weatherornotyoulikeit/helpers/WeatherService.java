@@ -39,7 +39,7 @@ public class WeatherService extends Service {
     private CityWeatherDetails weatherDetails;
     private weatherItem weather;
     private final WeatherBinder binder = new WeatherBinder();
-    private final String AARHUS_ID = "2624647";
+    private final String AARHUS_ID = "2624652";
 
     @Nullable
     @Override
@@ -55,14 +55,24 @@ public class WeatherService extends Service {
 
         Log.d("Service", LOG_LINE + "onCreate() called");
 
+
+
+        //TODO: Every half hour, update weather info, but first see if it works
+
+
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId)
+    {
+        Log.d("Service", LOG_LINE + "onStartCommand() called");
+
         WebServiceHelper helper = new WebServiceHelper();
 
         //debugging
         helper.GetWeather(AARHUS_ID, this);
 
-        //TODO: Every half hour, update weather info, but first see if it works
-
-
+        return START_NOT_STICKY;
     }
 
     private void WeatherUpdateReady()
@@ -108,13 +118,13 @@ public class WeatherService extends Service {
 
         public void GetWeather(String cityId, Context context) {
 
-            Log.d("Weather Helper", LOG_LINE + "GetWeather() called");
+            Log.d("Weather Helper#1", LOG_LINE + "GetWeather() called");
 
             if (queue == null) {
                 queue = Volley.newRequestQueue(context);
             }
 
-            Log.d("Weather Helper", LOG_LINE + "Queue created");
+            Log.d("Weather Helper#2", LOG_LINE + "Queue created");
 
             String url = WEATHER_API_CALL_HEAD + cityId + WEATHER_API_CALL_TAIL;
 
@@ -123,7 +133,7 @@ public class WeatherService extends Service {
                         @Override
                         public void onResponse(String response) {
 
-                            Log.d("Weather Helper", LOG_LINE + "Response: " + response);
+                            Log.d("Weather Helper#3", LOG_LINE + "Response: " + response);
 
                             txtResponse = response;
 
@@ -133,14 +143,17 @@ public class WeatherService extends Service {
 
                             WeatherUpdateReady();
 
+                            queue = null;
+
                         }
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
 
 
-                    txtResponse = "failure";
-                    Log.d("Weather Helper", LOG_LINE + txtResponse);
+                    txtResponse = error.getMessage();
+                    Log.d("Weather Helper#4", LOG_LINE + txtResponse);
+                    queue = null;
                 }
             });
 
@@ -153,28 +166,37 @@ public class WeatherService extends Service {
         }
 
         private CityWeatherDetails StringToWeatherDetails(String stringWeather) {
-            Log.d("Weather Helper", LOG_LINE + "StringToWeather() called");
+            Log.d("Weather Helper#5", LOG_LINE + "StringToWeather() called");
             Gson gsonBuilder = new Gson();
             JsonReader reader = new JsonReader(new StringReader(stringWeather));
             reader.setLenient(true);
             CityWeatherDetails tempWeather = gsonBuilder.fromJson(reader, CityWeatherDetails.class);
 
-            Log.d("Weather item", LOG_LINE + "Weather status: " + tempWeather.getWeather()[0].getDescription());
-
+            if(tempWeather.getWeather()!= null && tempWeather.getWeather()[0] != null) {
+                Log.d("Weather item", LOG_LINE + "Weather status: " + tempWeather.getWeather()[0].getDescription());
+            }
             return tempWeather;
 
         }
 
         private weatherItem WeatherDetailsToWeather(CityWeatherDetails cityWeather)
         {
+
+
             String weatherStatus = cityWeather.getWeather()[0].getDescription();
             String time = new SimpleDateFormat("HH:mm").format(Calendar.getInstance().getTime());
-            String date = new SimpleDateFormat("dd/MM").format(Calendar.getInstance().getTime());
-            Double celciusTemperature = TempeatureHelper.FahrenheitToCelcius(cityWeather.getMain().getTemp());
+            String date = new SimpleDateFormat("dd-MM-yyyy").format(Calendar.getInstance().getTime());
+            Double celciusTemperature = TempeatureHelper.KelvinToCelcius(cityWeather.getMain().getTemp());
+
+            Log.d("Temp", LOG_LINE + celciusTemperature.toString());
 
             //TODO: Why the f*** Is the temperature so high?!?
 
-            String tempearture = Double.toString(celciusTemperature);
+            String tempearture = String.format("%.1f" ,celciusTemperature);
+
+            //String tempearture = celciusTemperature.toString();
+
+            Log.d("tempString", LOG_LINE + tempearture);
 
             weatherItem tempItem = new weatherItem(weatherStatus, date, tempearture, time, 1); //TODO: What is response code?
 

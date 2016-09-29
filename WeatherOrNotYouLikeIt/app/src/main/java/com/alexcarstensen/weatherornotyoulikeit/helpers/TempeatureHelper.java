@@ -8,7 +8,7 @@ public class TempeatureHelper {
 
     public static double KelvinToCelcius(double kelvinTemperature)
     {
-        double celciusTemperature = kelvinTemperature + 273.15;
+        double celciusTemperature = kelvinTemperature - 273.15;
 
         return celciusTemperature;
     }

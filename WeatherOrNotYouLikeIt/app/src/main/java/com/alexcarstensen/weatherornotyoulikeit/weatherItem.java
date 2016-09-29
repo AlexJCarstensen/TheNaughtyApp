@@ -16,6 +16,7 @@ public class weatherItem  implements Parcelable{
     private String _temperature;
     private String _time;
     private String _intentAction;
+    private String _icon;
     private int resultCode;
 
     public weatherItem(){};
@@ -50,6 +51,9 @@ public class weatherItem  implements Parcelable{
             return new weatherItem[size];
         }
     };
+
+    public String getIcon() {return _icon;}
+    public void setIcon(String icon) {this._icon = icon;}
 
     public int getID() {return _id;}
     public void setID(int id) {this._id = id;}

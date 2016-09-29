@@ -7,5 +7,7 @@
     <string name="txtTempDegree">XX°</string>
     <string name="txtStatus">Status</string>
     <string name="txtUpdateWeather">Weather updated</string>
+    <string name="txtUnableToUpdateWeather">Could not update weather</string>
+
 
 </resources>

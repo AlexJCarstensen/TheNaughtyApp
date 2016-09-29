@@ -13,6 +13,10 @@ import java.security.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.security.Timestamp;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
 import com.alexcarstensen.weatherornotyoulikeit.weatherItem;
 
 /**
@@ -33,7 +37,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
                     FeedEntry.COLUMN_WEATHERSTATUS + TEXT_TYPE + COMMA_SEP +
                     FeedEntry.COLUMN_DATE + TEXT_TYPE + COMMA_SEP +
                     FeedEntry.COLUMN_TEMPERATURE + TEXT_TYPE + COMMA_SEP +
-                    FeedEntry.COLUMN_TIME + TEXT_TYPE + COMMA_SEP +
+                    FeedEntry.COLUMN_ICON + TEXT_TYPE + COMMA_SEP +
                     FeedEntry.COLUMN_RESULTCODE + INTERGER_TYPE + " )";
 
     private static final String SQL_DELETE_ENTRIES =
@@ -67,9 +71,9 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     public void addWeather(weatherItem _weatherItem){
         ContentValues values = new ContentValues();
         values.put(FeedEntry.COLUMN_WEATHERSTATUS, _weatherItem.getWeatherStatus());
-        values.put(FeedEntry.COLUMN_DATE, _weatherItem.getDate());
+        values.put(FeedEntry.COLUMN_DATE, _weatherItem.getDate()+" "+_weatherItem.getTime());
         values.put(FeedEntry.COLUMN_TEMPERATURE, _weatherItem.getTemperature());
-        values.put(FeedEntry.COLUMN_TIME, _weatherItem.getTime());
+        values.put(FeedEntry.COLUMN_ICON, _weatherItem.getIcon());
         values.put(FeedEntry.COLUMN_RESULTCODE, _weatherItem.getResultCode());
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -83,32 +87,71 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     }
 
 
-    public weatherItem findWeather(String WeatherStatus){
+//    public weatherItem getWeather(String WeatherStatus){
+//        String query = "SELECT * FROM " + FeedEntry.TABLE_NAME +
+//                        " WHERE " + FeedEntry.COLUMN_WEATHERSTATUS +
+//                        " =  \"" + WeatherStatus + "\"";
+//
+//        SQLiteDatabase db = this.getWritableDatabase();
+//        Cursor cursor = db.rawQuery(query, null);
+//
+//        weatherItem weather = new weatherItem();
+//
+//        if (cursor.moveToFirst()) {
+//            cursor.moveToFirst();
+//
+//            weather.setID(Integer.parseInt(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_ID))));
+//            weather.setWeatherStatus(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_WEATHERSTATUS)));
+//            weather.setDate(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_DATE)));
+//            weather.setTemperature(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_TEMPERATURE)));
+//            weather.setResultCode(Integer.parseInt(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_RESULTCODE))));
+//
+//            cursor.close();
+//        } else {
+//            weather = null;
+//        }
+//        db.close();
+//        return weather;
+//    }
+
+    public List<weatherItem> getWeatherList(){
+
+        Calendar calendar = Calendar.getInstance();
+
         String query = "SELECT * FROM " + FeedEntry.TABLE_NAME +
-                        " WHERE " + FeedEntry.COLUMN_WEATHERSTATUS +
-                        " =  \"" + WeatherStatus + "\"";
+                        " WHERE " + FeedEntry.COLUMN_DATE + " > strftime('%d-%m-%Y %H:%M',datetime('now','-1 day'))"+
+                        " ORDER BY date("+ FeedEntry.COLUMN_DATE +")";
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
 
-        weatherItem weather = new weatherItem();
+        List<weatherItem> WeatherItemList = new ArrayList<weatherItem>();
+
+        Log.d("TEST", query);
 
         if (cursor.moveToFirst()) {
-            cursor.moveToFirst();
+            while (cursor.isAfterLast() == false) {
+                weatherItem weather = new weatherItem();
+                String datetime = cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_DATE));
+                String[] times = datetime.split(" ", 2);
 
-            weather.setID(Integer.parseInt(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_ID))));
-            weather.setWeatherStatus(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_WEATHERSTATUS)));
-            weather.setDate(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_DATE)));
-            weather.setTemperature(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_TEMPERATURE)));
-            weather.setTime(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_TIME)));
-            weather.setResultCode(Integer.parseInt(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_RESULTCODE))));
+                weather.setID(Integer.parseInt(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_ID))));
+                weather.setWeatherStatus(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_WEATHERSTATUS)));
+                weather.setDate(times[0]);
+                weather.setTime(times[1]);
+                weather.setTemperature(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_TEMPERATURE)));
+                weather.setIcon(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_ICON)));
+                weather.setResultCode(Integer.parseInt(cursor.getString(cursor.getColumnIndex(FeedEntry.COLUMN_RESULTCODE))));
 
+                WeatherItemList.add(weather);
+                cursor.moveToNext();
+            }
             cursor.close();
-        } else {
-            weather = null;
+        }else {
+            WeatherItemList = null;
         }
         db.close();
-        return weather;
+        return WeatherItemList;
     }
 
 }
