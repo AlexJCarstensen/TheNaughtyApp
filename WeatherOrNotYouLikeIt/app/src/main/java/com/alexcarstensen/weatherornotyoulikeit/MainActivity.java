@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
     private WeatherService weatherService;
     private weatherItem weather;
+    private weatherItem listWeather;
     private ServiceConnection weatherServiceConnection;
     private FragmentManager _fm;
     private content_history_weather_fragment _fragment;
@@ -57,8 +59,8 @@ public class MainActivity extends AppCompatActivity {
 
         //Registering receiver
         IntentFilter weatherFilter = new IntentFilter();
-        weatherFilter.addAction(WeatherService.BROADCAST_WEATHER_UPDATE);
-        LocalBroadcastManager.getInstance(MainActivity.this).registerReceiver(onWeatherUpdate, weatherFilter);
+        weatherFilter.addAction(WeatherService.BROADCAST_FRESH_WEATHER_UPDATE);
+        LocalBroadcastManager.getInstance(MainActivity.this).registerReceiver(onFreshWeatherUpdate, weatherFilter);
 
         setupConnectionToWeatherService();
         Intent bindIntent = new Intent(MainActivity.this, WeatherService.class);
@@ -110,7 +112,8 @@ public class MainActivity extends AppCompatActivity {
         alarmMng = (AlarmManager)MainActivity.this.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
         alarmIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
-        alarmMng.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, AlarmManager.INTERVAL_HALF_HOUR, AlarmManager.INTERVAL_HALF_HOUR, alarmIntent);
+        alarmMng.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, AlarmManager.INTERVAL_HALF_HOUR, AlarmManager.INTERVAL_HALF_HOUR, alarmIntent);
+        alarmMng.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 1000, SystemClock.elapsedRealtime() + 1000, alarmIntent);
 
     }
 
@@ -140,10 +143,10 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    private BroadcastReceiver onWeatherUpdate = new BroadcastReceiver() {
+    private BroadcastReceiver onFreshWeatherUpdate = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("MainActivity", WeatherService.LOG_LINE + "onWeatherUpdate() called");
+            Log.d("MainActivity", WeatherService.LOG_LINE + "onFreshnWeatherUpdate() called");
             if(weatherService != null) {
                 weather = weatherService.GetNewWeather();
                 //Checking if it works when it receives the update
@@ -155,6 +158,21 @@ public class MainActivity extends AppCompatActivity {
             }
             Log.d("weather item", WeatherService.LOG_LINE + weather.getWeatherStatus());
 
+        }
+    };
+
+    private BroadcastReceiver onListWeatherUpdate = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("MainActivity", WeatherService.LOG_LINE + "onFreshWeatherUpdate() called");
+
+            if(weatherService != null)
+            {
+                listWeather = weatherService.GetNewListWeather();
+
+
+                //TODO: Update the list!
+            }
         }
     };
 
