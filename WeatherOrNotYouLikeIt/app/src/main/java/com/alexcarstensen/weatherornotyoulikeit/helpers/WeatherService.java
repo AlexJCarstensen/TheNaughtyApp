@@ -3,6 +3,7 @@ package com.alexcarstensen.weatherornotyoulikeit.helpers;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
@@ -23,6 +24,7 @@ import com.android.volley.toolbox.Volley;
 
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -40,7 +42,7 @@ public class WeatherService extends Service {
     private CityWeatherDetails freshWeatherDetails;
     private CityWeatherDetails weatherListDetails;
     private weatherItem freshWeather;
-    private weatherItem listWeather;
+    private ArrayList<weatherItem> weatherList;
     private final WeatherBinder binder = new WeatherBinder();
     private final String AARHUS_ID = "2624652";
 
@@ -111,7 +113,7 @@ public class WeatherService extends Service {
     {
         return freshWeather;
     }
-    public weatherItem GetNewListWeather() {return listWeather;}
+    public ArrayList<weatherItem> GetNewWeatherList() {return weatherList;}
 
 
 
@@ -186,7 +188,7 @@ public class WeatherService extends Service {
 
         }
 
-        public void GetWeatherForDb(String cityId, Context context)
+        public void GetWeatherForDb(String cityId, final Context context)
         {
 
             Log.d("Weather Helper#1", LOG_LINE + "GetWeather() called");
@@ -210,9 +212,17 @@ public class WeatherService extends Service {
 
                              weatherListDetails = StringToWeatherDetails(txtResponse);
 
-                            listWeather = WeatherDetailsToWeather(weatherListDetails);
+                            weatherItem tempItem = WeatherDetailsToWeather(weatherListDetails);
 
                             //TODO: save weather in db and send broadcast with list ready
+
+                            DatabaseHelper dbHelper = new DatabaseHelper(context);
+
+                            SQLiteDatabase sb = dbHelper.getWritableDatabase();
+
+                            dbHelper.addWeather(tempItem);
+
+                            weatherList = dbHelper.getWeatherList();
 
                             ListWeatherUpdateReady();
 
@@ -257,6 +267,7 @@ public class WeatherService extends Service {
             String time = new SimpleDateFormat("HH:mm").format(Calendar.getInstance().getTime());
             String date = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
             Double celciusTemperature = TempeatureHelper.KelvinToCelcius(cityWeather.getMain().getTemp());
+            String icon = cityWeather.getWeather()[0].getIcon();
 
             Log.d("Temp", LOG_LINE + celciusTemperature.toString());
 
@@ -268,7 +279,7 @@ public class WeatherService extends Service {
 
             Log.d("tempString", LOG_LINE + tempearture);
 
-            weatherItem tempItem = new weatherItem(weatherStatus, date, tempearture, time, 1,"dummy"); //TODO: What is response code?
+            weatherItem tempItem = new weatherItem(weatherStatus, date, tempearture, time, 1, icon); //TODO: What is response code?
 
             return tempItem;
         }

@@ -114,7 +114,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 //        return weather;
 //    }
 
-    public List<weatherItem> getWeatherList(){
+    public ArrayList<weatherItem> getWeatherList(){
 
         Calendar calendar = Calendar.getInstance();
 
@@ -125,7 +125,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
 
-        List<weatherItem> WeatherItemList = new ArrayList<weatherItem>();
+        ArrayList<weatherItem> WeatherItemList = new ArrayList<weatherItem>();
 
         Log.d("TEST", query);
 
