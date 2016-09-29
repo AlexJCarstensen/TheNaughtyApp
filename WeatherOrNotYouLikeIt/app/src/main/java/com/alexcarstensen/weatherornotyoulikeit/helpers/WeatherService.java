@@ -33,11 +33,14 @@ import java.util.Date;
  */
 
 public class WeatherService extends Service {
-    public static final String BROADCAST_WEATHER_UPDATE = "weather_update";
+    public static final String BROADCAST_WEATHERLIST_UPDATE = "weather_list_update";
+    public static final String BROADCAST_FRESH_WEATHER_UPDATE = "fresh_weather_update";
 
     public static final String LOG_LINE = "------------------------------------->> ";
-    private CityWeatherDetails weatherDetails;
-    private weatherItem weather;
+    private CityWeatherDetails freshWeatherDetails;
+    private CityWeatherDetails weatherListDetails;
+    private weatherItem freshWeather;
+    private weatherItem listWeather;
     private final WeatherBinder binder = new WeatherBinder();
     private final String AARHUS_ID = "2624652";
 
@@ -62,6 +65,14 @@ public class WeatherService extends Service {
 
     }
 
+    public void GetFreshWeather()
+    {
+        //TODO: GetFreshWeather from web helper
+        WebServiceHelper helper = new WebServiceHelper();
+
+        helper.GetFreshWeather(AARHUS_ID, this);
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
@@ -69,28 +80,38 @@ public class WeatherService extends Service {
 
         WebServiceHelper helper = new WebServiceHelper();
 
-        //debugging
-        helper.GetWeather(AARHUS_ID, this);
+        helper.GetWeatherForDb(AARHUS_ID, this);
 
         return START_NOT_STICKY;
     }
 
-    private void WeatherUpdateReady()
+    private void FreshWeatherUpdateReady()
     {
-        Log.d("Service", LOG_LINE + "Update() called");
+        Log.d("Service", LOG_LINE + "FreshUpdate() called");
 
         // TODO: Broadcast so activity knows there is an update
 
-        Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction(BROADCAST_WEATHER_UPDATE);
+        Intent broadcastFreshIntent = new Intent();
+        broadcastFreshIntent.setAction(BROADCAST_FRESH_WEATHER_UPDATE);
 
-        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastFreshIntent);
+    }
+
+    private void ListWeatherUpdateReady()
+    {
+        Log.d("Service", LOG_LINE + "ListUpdate() called");
+
+        Intent broadcastListIntent = new Intent();
+        broadcastListIntent.setAction(BROADCAST_WEATHERLIST_UPDATE);
+
+        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastListIntent);
     }
 
     public weatherItem GetNewWeather()
     {
-        return weather;
+        return freshWeather;
     }
+    public weatherItem GetNewListWeather() {return listWeather;}
 
 
 
@@ -116,7 +137,7 @@ public class WeatherService extends Service {
         String txtResponse = "";
 
 
-        public void GetWeather(String cityId, Context context) {
+        public void GetFreshWeather(String cityId, Context context) {
 
             Log.d("Weather Helper#1", LOG_LINE + "GetWeather() called");
 
@@ -137,11 +158,11 @@ public class WeatherService extends Service {
 
                             txtResponse = response;
 
-                            weatherDetails = StringToWeatherDetails(txtResponse);
+                            freshWeatherDetails = StringToWeatherDetails(txtResponse);
 
-                            weather = WeatherDetailsToWeather(weatherDetails);
+                            freshWeather = WeatherDetailsToWeather(freshWeatherDetails);
 
-                            WeatherUpdateReady();
+                            FreshWeatherUpdateReady();
 
                             queue = null;
 
@@ -161,6 +182,55 @@ public class WeatherService extends Service {
 
 
 
+
+
+        }
+
+        public void GetWeatherForDb(String cityId, Context context)
+        {
+
+            Log.d("Weather Helper#1", LOG_LINE + "GetWeather() called");
+
+            if (queue == null) {
+                queue = Volley.newRequestQueue(context);
+            }
+
+            Log.d("Weather Helper#2", LOG_LINE + "Queue created");
+
+            String url = WEATHER_API_CALL_HEAD + cityId + WEATHER_API_CALL_TAIL;
+
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+
+                            Log.d("Weather Helper#3", LOG_LINE + "Response: " + response);
+
+                            txtResponse = response;
+
+                             weatherListDetails = StringToWeatherDetails(txtResponse);
+
+                            listWeather = WeatherDetailsToWeather(weatherListDetails);
+
+                            //TODO: save weather in db and send broadcast with list ready
+
+                            ListWeatherUpdateReady();
+
+                            queue = null;
+
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+
+                    txtResponse = error.getMessage();
+                    Log.d("Weather Helper#4", LOG_LINE + txtResponse);
+                    queue = null;
+                }
+            });
+
+            queue.add(stringRequest);
 
 
         }
@@ -185,7 +255,7 @@ public class WeatherService extends Service {
 
             String weatherStatus = cityWeather.getWeather()[0].getDescription();
             String time = new SimpleDateFormat("HH:mm").format(Calendar.getInstance().getTime());
-            String date = new SimpleDateFormat("dd-MM-yyyy").format(Calendar.getInstance().getTime());
+            String date = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
             Double celciusTemperature = TempeatureHelper.KelvinToCelcius(cityWeather.getMain().getTemp());
 
             Log.d("Temp", LOG_LINE + celciusTemperature.toString());
