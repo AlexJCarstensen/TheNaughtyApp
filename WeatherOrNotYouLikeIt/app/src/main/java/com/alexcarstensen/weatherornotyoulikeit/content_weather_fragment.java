@@ -13,9 +13,11 @@ import android.widget.TextView;
 public class content_weather_fragment extends Fragment {
 
     final static String STATE_CURRENT_WEATHER = "CurrentWeather";
+    final static String STATE_CURRENT_WEATHER_ICON = "CurrentWeatherIcon";
     View view;
     private weatherItem _weatherItem;
     private Resources resources = null;
+    private int resNum;
 
     public content_weather_fragment() {
     }
@@ -39,6 +41,9 @@ public class content_weather_fragment extends Fragment {
 
                 TextView txtTemp = (TextView) view.findViewById(R.id.textViewCurrentTemp);
                 txtTemp.setText(_weatherItem.getTemperature().concat("°"));
+
+                ImageView viewCurrentWeatherStatus = (ImageView) view.findViewById(R.id.imageViewCurrentWeatherStatus);
+                viewCurrentWeatherStatus.setImageResource(resNum);
             }
         }
 
@@ -53,7 +58,7 @@ public class content_weather_fragment extends Fragment {
 
         //Trying to find the right icon to show
         String uri = "drawable/i" + _weatherItem.getIcon();
-        int resNum = resources.getIdentifier(uri, "drawable", MainActivity.PACKAGE_NAME);
+        resNum = resources.getIdentifier(uri, "drawable", MainActivity.PACKAGE_NAME);
 
         //Settting the image resource to the right icon
         viewCurrentWeatherStatus.setImageResource(resNum);
@@ -74,6 +79,8 @@ public class content_weather_fragment extends Fragment {
         super.onSaveInstanceState(outState);
         if(_weatherItem != null) {
             outState.putParcelable(STATE_CURRENT_WEATHER, _weatherItem);
+            outState.putInt(STATE_CURRENT_WEATHER_ICON, resNum);
+
         }
     }
 }
