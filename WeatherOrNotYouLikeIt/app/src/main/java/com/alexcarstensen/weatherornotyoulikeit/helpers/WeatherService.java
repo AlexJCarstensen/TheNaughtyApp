@@ -55,14 +55,24 @@ public class WeatherService extends Service {
 
         Log.d("Service", LOG_LINE + "onCreate() called");
 
+
+
+        //TODO: Every half hour, update weather info, but first see if it works
+
+
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId)
+    {
+        Log.d("Service", LOG_LINE + "onStartCommand() called");
+
         WebServiceHelper helper = new WebServiceHelper();
 
         //debugging
         helper.GetWeather(AARHUS_ID, this);
 
-        //TODO: Every half hour, update weather info, but first see if it works
-
-
+        return START_NOT_STICKY;
     }
 
     private void WeatherUpdateReady()
@@ -139,7 +149,7 @@ public class WeatherService extends Service {
                 public void onErrorResponse(VolleyError error) {
 
 
-                    txtResponse = "failure";
+                    txtResponse = error.getMessage();
                     Log.d("Weather Helper", LOG_LINE + txtResponse);
                 }
             });
