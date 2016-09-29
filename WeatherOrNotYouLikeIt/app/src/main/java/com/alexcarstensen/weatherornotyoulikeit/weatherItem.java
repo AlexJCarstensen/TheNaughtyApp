@@ -1,11 +1,14 @@
 package com.alexcarstensen.weatherornotyoulikeit;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by jeppe on 23-09-2016.
  */
 
 
-public class weatherItem {
+public class weatherItem  implements Parcelable{
 
     private int _id;
     private String _weatherStatus;
@@ -60,5 +63,22 @@ public class weatherItem {
     }
     public void setResultCode(int resultCode) {
         this.resultCode = resultCode;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+
+        dest.writeInt(_id);
+        dest.writeString(_weatherStatus);
+        dest.writeString(_date);
+        dest.writeString(_temperature);
+        dest.writeString(_time);
+        dest.writeString(_intentAction);
+        dest.writeInt(resultCode);
     }
 }

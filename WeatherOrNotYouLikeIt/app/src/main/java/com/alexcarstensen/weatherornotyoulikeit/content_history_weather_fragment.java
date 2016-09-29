@@ -1,5 +1,6 @@
 package com.alexcarstensen.weatherornotyoulikeit;
 
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,6 +12,8 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 public class content_history_weather_fragment extends Fragment {
+
+    final static String STATE_WEATHER_ARRAY = "WeatherArray";
 
     private listAdaptor listAdaptorObj;
     private ListView weatherHistoryListView;
@@ -49,5 +52,13 @@ public class content_history_weather_fragment extends Fragment {
         weatherHistoryListView = (ListView)view.findViewById(R.id.listViewWeatherHistory);
         weatherHistoryListView.setAdapter(listAdaptorObj);
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(STATE_WEATHER_ARRAY, weatherItemList);
+
+    }
+
 
 }
