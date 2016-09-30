@@ -67,7 +67,7 @@ public class listAdaptor extends BaseAdapter {
             txtDate.setText(weatherItemObj.getDate());
 
             TextView txtTemp = (TextView) convertView.findViewById(R.id.textViewTemperature);
-            txtTemp.setText(weatherItemObj.getTemperature());
+            txtTemp.setText(weatherItemObj.getTemperature().concat("°"));
 
             TextView txtTime = (TextView) convertView.findViewById(R.id.textViewUpdateTime);
             txtTime.setText(weatherItemObj.getTime());
