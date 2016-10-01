@@ -25,6 +25,7 @@ import com.alexcarstensen.weatherornotyoulikeit.helpers.WeatherService;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -213,7 +214,23 @@ public class MainActivity extends AppCompatActivity {
             {
                 weatherList = weatherService.GetNewWeatherList();
 
-                _fragmentHistoryWeather.setWeatherList(weatherList);
+                //Making hack
+                ArrayList<weatherItem> tempList = new ArrayList<>();
+                ArrayList<String> dateList = new ArrayList<>();
+                ArrayList<String> timeList = new ArrayList<>();
+
+
+                //if both the date and the time is in the list, don't add it
+                for (weatherItem item : weatherList) {
+
+                    if(!(dateList.contains(item.getDate()) && timeList.contains(item.getTime())))
+                    {
+                        tempList.add(item);
+                    }
+
+                }
+
+                _fragmentHistoryWeather.setWeatherList(tempList);
 
 
             }
