@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.alexcarstensen.weatherornotyoulikeit.MainActivity;
 import com.alexcarstensen.weatherornotyoulikeit.model.CityWeatherDetails;
 import com.alexcarstensen.weatherornotyoulikeit.weatherItem;
 import com.google.gson.Gson;
