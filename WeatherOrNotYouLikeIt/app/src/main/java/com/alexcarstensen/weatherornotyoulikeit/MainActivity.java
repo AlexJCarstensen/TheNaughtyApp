@@ -25,6 +25,7 @@ import com.alexcarstensen.weatherornotyoulikeit.helpers.WeatherService;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private boolean isBound = false;
+
     // For debugging
     int i = 0;
 
@@ -180,42 +182,85 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private BroadcastReceiver onWeatherUpdate = new BroadcastReceiver() {
+
+        private boolean isUpdatingFreshWeather = false;
+
         @Override
         public void onReceive(Context context, Intent intent) {
+
+
             Log.d("MainActivity", WeatherService.LOG_LINE + "onWeatherUpdate() called");
-            if(weatherService != null) {
-                weather = weatherService.GetNewWeather();
-                //Checking if it works when it receives the update
 
-                if(weather !=null) {
+            if(!isUpdatingFreshWeather) {
 
-                    int iconResource = getResources().getIdentifier("drawableName", "drawable", getPackageName());
+                isUpdatingFreshWeather = true;
+
+                if (weatherService != null) {
+
+
+                    weather = weatherService.GetNewWeather();
+                    //Checking if it works when it receives the update
+
+                    if (weather != null) {
+
 
                         _fragmentWeather.setCurrentWeather(weather);
                         Toast.makeText(getApplicationContext(), R.string.txtUpdateWeather, Toast.LENGTH_SHORT).show();
-                    }
-                    else
-                    {
+                    } else {
                         Toast.makeText(getApplicationContext(), R.string.txtUnableToUpdateWeather, Toast.LENGTH_SHORT).show();
                     }
+                }
+                Log.d("weather item", WeatherService.LOG_LINE + weather.getWeatherStatus());
+
+                isUpdatingFreshWeather = false;
             }
-            Log.d("weather item", WeatherService.LOG_LINE + weather.getWeatherStatus());
 
         }
     };
 
     private BroadcastReceiver onListWeatherUpdate = new BroadcastReceiver() {
+
+        private boolean isUpdatingHistory = false;
+
         @Override
         public void onReceive(Context context, Intent intent) {
+
             Log.d("MainActivity", WeatherService.LOG_LINE + "onListWeatherUpdate() called");
 
-            if(weatherService != null)
-            {
-                weatherList = weatherService.GetNewWeatherList();
+            if(!isUpdatingHistory) {
+                isUpdatingHistory = true;
+                if (weatherService != null) {
+                    weatherList = weatherService.GetNewWeatherList();
 
-                _fragmentHistoryWeather.setWeatherList(weatherList);
+
+                    //Making hack
+                    ArrayList<weatherItem> tempList = new ArrayList<>();
+                    ArrayList<String> dateList = new ArrayList<>();
+                    ArrayList<String> timeList = new ArrayList<>();
 
 
+                    //if both the date and the time is in the list, don't add it
+                    if (weatherList != null) {
+
+
+
+                    for (weatherItem item : weatherList) {
+
+                        if (!(dateList.contains(item.getDate()) && timeList.contains(item.getTime()))) {
+                            tempList.add(item);
+
+                            dateList.add(item.getDate());
+                            timeList.add(item.getTime());
+                        }
+
+                    }
+
+                        _fragmentHistoryWeather.setWeatherList(tempList);
+
+                        isUpdatingHistory = false;
+
+                    }
+                }
             }
         }
     };

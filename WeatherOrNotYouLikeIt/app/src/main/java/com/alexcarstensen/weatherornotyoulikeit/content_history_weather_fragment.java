@@ -73,11 +73,14 @@ public class content_history_weather_fragment extends Fragment {
     }
 
     public void setWeatherList(ArrayList<weatherItem> weatherItemList_){
-        weatherItemList = weatherItemList_;
-        Collections.reverse(weatherItemList);
-        listAdaptorObj = new listAdaptor(view.getContext(), weatherItemList);
-        weatherHistoryListView = (ListView)view.findViewById(R.id.listViewWeatherHistory);
-        weatherHistoryListView.setAdapter(listAdaptorObj);
+
+        if (weatherItemList_!=null){
+            weatherItemList = weatherItemList_;
+            Collections.reverse(weatherItemList);
+            listAdaptorObj = new listAdaptor(view.getContext(), weatherItemList);
+            weatherHistoryListView = (ListView)view.findViewById(R.id.listViewWeatherHistory);
+            weatherHistoryListView.setAdapter(listAdaptorObj);
+        }
     }
 
     @Override
