@@ -2,4 +2,9 @@
     <string name="app_name">The Brand App</string>
     <string name="action_settings">Settings</string>
     <string name="contacts_string">Contacts</string>
+    <string name="Email">Email</string>
+    <string name="CreateAccount">No account yet? Create one</string>
+    <string name="emailHint">Johndoe@gmail.com</string>
+    <string name="passwordHint">Password</string>
+    <string name="LoginBtn">Login</string>
 </resources>
