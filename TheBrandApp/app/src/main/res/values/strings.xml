@@ -7,4 +7,7 @@
     <string name="emailHint">Johndoe@gmail.com</string>
     <string name="passwordHint">Password</string>
     <string name="LoginBtn">Login</string>
+    <string name="signupNameValue">Username</string>
+    <string name="signupCreateAccountBtn">Create Account</string>
+    <string name="signupAlreadyMember">Already a member? Login</string>
 </resources>

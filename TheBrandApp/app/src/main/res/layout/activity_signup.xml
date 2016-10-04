@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_signup"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -12,5 +12,71 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.alexcarstensen.thebrandapp.SignupActivity">
 
+
+    <TextView
+        android:id="@+id/signupAppnameTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="123dp"
+        android:text="@string/app_name"/>
+
+    <TextView
+        android:id="@+id/signupNameTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="47dp"
+        android:text="@string/signupNameValue"/>
+
+    <EditText
+        android:id="@+id/signupUserNameEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/signupNameValue"
+        android:inputType="textPersonName"/>
+
+    <TextView
+        android:id="@+id/signupEmailTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/Email"/>
+
+    <EditText
+        android:id="@+id/signupEmailEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/emailHint"
+        android:inputType="textEmailAddress"/>
+
+    <TextView
+        android:id="@+id/signupPasswordTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/passwordHint"/>
+
+    <EditText
+        android:id="@+id/signupPasswordEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/passwordHint"
+        android:inputType="textPassword"/>
+
+    <Button
+        android:id="@+id/signupCreateAccoutButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/signupCreateAccountBtn"/>
+
+    <TextView
+        android:id="@+id/signupAlreadyMemberTextView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="15dp"
+        android:gravity="center_horizontal"
+        android:text="@string/signupAlreadyMember"/>
 
 </LinearLayout>
