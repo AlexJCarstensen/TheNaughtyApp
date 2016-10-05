@@ -71,6 +71,7 @@ public class SignupActivity extends AppCompatActivity
         }
 
         authenticateAccountCreationWithServer();
+
     }
 
 
@@ -133,7 +134,7 @@ public class SignupActivity extends AppCompatActivity
         String password = _passwordField.getText().toString();
         String userName = _userNameField.getText().toString();
 
-        // TODO authenticate with server and login
+        // TODO authenticate with server and Create account
         UserItem user = new UserItem(null, userName, email, password);
     }
 
