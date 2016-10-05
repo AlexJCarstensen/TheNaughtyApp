@@ -75,7 +75,7 @@ public class LoginActivity extends AppCompatActivity
 
     private boolean validateLogin()
     {
-        Log.d(TAG, "validating login");
+        Log.d(TAG, "Validating login");
 
         Boolean validLogin = true;
 
@@ -94,7 +94,7 @@ public class LoginActivity extends AppCompatActivity
         {
             _emailField.setError("Enter a valid email address");
             validLogin = false;
-            Log.d(TAG, "email field was incorrect");
+            Log.d(TAG, "Email field was incorrect");
         }
 
         // should it be between certain length and or special chars??
@@ -102,7 +102,7 @@ public class LoginActivity extends AppCompatActivity
         {
             _passwordField.setError("Please enter a password");
             validLogin = false;
-            Log.d(TAG, "password field was empty");
+            Log.d(TAG, "Password field was empty");
         }
         return validLogin;
     }
