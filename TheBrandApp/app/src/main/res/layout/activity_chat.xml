@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_chat"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.alexcarstensen.thebrandapp.ChatActivity">
+
+
+    <fragment
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/chat_fragment_list"
+        android:name="com.alexcarstensen.thebrandapp.ChatMessageListFragment"
+        tools:layout="@layout/message_list_fragment_chat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_above="@+id/editTextChat" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textCapSentences|textAutoCorrect|textMultiLine"
+        android:ems="20"
+        android:textSize="20sp"
+        android:id="@+id/editTextChat"
+        android:imeOptions="actionSend"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true" />
+
+
+</RelativeLayout>
