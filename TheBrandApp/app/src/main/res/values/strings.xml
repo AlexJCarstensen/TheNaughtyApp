@@ -11,4 +11,8 @@
     <string name="signupCreateAccountBtn">Create Account</string>
     <string name="signupAlreadyMember">Already a member? Login</string>
     <string name="title_activity_map">Map</string>
+    <string name="txtTempDegree">°</string>
+    <string name="txtStatus" translatable="false">Status</string>
+    <string name="txtCurrentWeather">Current weather:</string>
+
 </resources>
