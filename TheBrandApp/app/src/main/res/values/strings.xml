@@ -12,4 +12,8 @@
     <string name="signupAlreadyMember">Already a member? Login</string>
     <string name="title_activity_map">Map</string>
     <string name="write_msg_here">Write message here</string>
+    <string name="txtTempDegree">°</string>
+    <string name="txtStatus" translatable="false">Status</string>
+    <string name="txtCurrentWeather">Current weather:</string>
+
 </resources>
