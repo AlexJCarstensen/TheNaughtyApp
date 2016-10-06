@@ -53,7 +53,7 @@ public class MainContactListFragment extends Fragment {
 
         }
 
-
+        // REF: http://www.android-examples.com/set-onclicklistener-in-listview-in-android-programmatically/
         mainContactsListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override
@@ -101,7 +101,9 @@ public class MainContactListFragment extends Fragment {
 
 
 
+
     // Container Activity must implement this interface
+    // REF: https://developer.android.com/training/basics/fragments/communicating.html
     public interface OnContactSelectedListener {
         public void startChatWithUserNumber(int userItemNumber);
     }
