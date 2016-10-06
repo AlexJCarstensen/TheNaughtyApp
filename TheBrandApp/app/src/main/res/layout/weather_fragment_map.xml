@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <ImageView
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:id="@+id/imageViewCurrentWeatherStatus"
+        android:src="@drawable/noinfo"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="12dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="6dp" />
+
+    <TextView
+        android:id="@+id/textViewCurrentWeather"
+        android:textSize="11sp"
+        android:text="@string/txtCurrentWeather"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/imageViewCurrentWeatherStatus"
+        android:layout_toRightOf="@+id/imageViewCurrentWeatherStatus"
+        android:layout_toEndOf="@+id/imageViewCurrentWeatherStatus"
+        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/textViewCurrentWeatherStatus"
+        android:textSize="11sp"
+        android:text="@string/txtStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textViewCurrentWeather"
+        android:layout_alignLeft="@+id/textViewCurrentWeather"
+        android:layout_alignStart="@+id/textViewCurrentWeather"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/textViewCurrentTemp"
+        android:textSize="14sp"
+        android:text="@string/txtTempDegree"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/imageViewCurrentWeatherStatus"
+        android:layout_alignLeft="@+id/textViewCurrentWeatherStatus"
+        android:layout_alignStart="@+id/textViewCurrentWeatherStatus" />
+
+
+</RelativeLayout>

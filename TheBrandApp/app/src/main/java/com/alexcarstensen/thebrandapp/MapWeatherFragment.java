@@ -9,27 +9,27 @@ import android.view.ViewGroup;
 /**
  * Created by jeppe on 03-10-2016.
  */
-// REF: Made from ArniesFragmentsMovie example
-public class MainContactBarFragment extends Fragment {
+
+public class MapWeatherFragment extends Fragment {
 
 
     View view;
 
-    public MainContactBarFragment() {
+    public MapWeatherFragment() {
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
 
 
-        view = inflater.inflate(R.layout.contact_bar_fragment_main,
+        view = inflater.inflate(R.layout.weather_fragment_map,
                 container, false);
 
 
         return view;
     }
-
 
 
 }

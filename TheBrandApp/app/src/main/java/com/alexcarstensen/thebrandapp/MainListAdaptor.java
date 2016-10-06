@@ -14,7 +14,7 @@ import java.util.ArrayList;
  * Created by jeppe on 03-10-2016.
  */
 
-
+// REF: Made from ArniesFragmentsMovie example
 public class MainListAdaptor extends BaseAdapter {
 
     Context context;
@@ -53,9 +53,9 @@ public class MainListAdaptor extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
 
         if (convertView == null) {
-            LayoutInflater demoInflator = (LayoutInflater) this.context
+            LayoutInflater demoInflater = (LayoutInflater) this.context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = demoInflator.inflate(R.layout.list_user_item, null);
+            convertView = demoInflater.inflate(R.layout.list_user_item, null);
         }
 
         UserItemObj = UserItems.get(position);

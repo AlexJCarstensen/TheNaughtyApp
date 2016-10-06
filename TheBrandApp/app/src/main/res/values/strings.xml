@@ -2,4 +2,18 @@
     <string name="app_name">The Brand App</string>
     <string name="action_settings">Settings</string>
     <string name="contacts_string">Contacts</string>
+    <string name="Email">Email</string>
+    <string name="CreateAccount">No account yet? Create one</string>
+    <string name="emailHint">Johndoe@gmail.com</string>
+    <string name="passwordHint">Password</string>
+    <string name="LoginBtn">Login</string>
+    <string name="signupNameValue">Username</string>
+    <string name="signupCreateAccountBtn">Create Account</string>
+    <string name="signupAlreadyMember">Already a member? Login</string>
+    <string name="title_activity_map">Map</string>
+    <string name="write_msg_here">Write message here</string>
+    <string name="txtTempDegree">°</string>
+    <string name="txtStatus" translatable="false">Status</string>
+    <string name="txtCurrentWeather">Current weather:</string>
+
 </resources>
