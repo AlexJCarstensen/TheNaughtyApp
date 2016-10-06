@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "644946804844",
+    "firebase_url": "https://the-brand-app.firebaseio.com",
+    "project_id": "the-brand-app",
+    "storage_bucket": "the-brand-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:644946804844:android:40eb56a4475c4b95",
+        "android_client_info": {
+          "package_name": "com.alexcarstensen.thebrandapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "644946804844-eoq3r521uprlfgl6d90fumv18j94rq1a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDc2ZFwxFOnhmWoHTsIWmJuMOhj9eC0I7k"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
