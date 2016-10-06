@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 /**
  * Created by jeppe on 03-10-2016.
  */
-
+// REF: Made from ArniesFragmentsMovie example
 public class MainContactBarFragment extends Fragment {
 
 

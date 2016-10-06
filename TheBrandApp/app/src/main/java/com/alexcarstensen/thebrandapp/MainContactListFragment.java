@@ -18,7 +18,7 @@ import java.util.Collections;
 /**
  * Created by jeppe on 03-10-2016.
  */
-
+// REF: Made from ArniesFragmentsMovie example
 public class MainContactListFragment extends Fragment {
 
     final static String STATE_CONTACT_ARRAY = "ContactArray";
@@ -62,28 +62,6 @@ public class MainContactListFragment extends Fragment {
                 mainActivityCallback.startChatWithUserNumber(position);
             }
         });
-
-
-
-//        textView = (TextView) view.findViewById(R.id.textViewUserContact);
-//        textView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                //Toast.makeText(getActivity(), "", Toast.LENGTH_SHORT).show();
-//
-//                int x = 0;
-//            }
-//        });
-//        else{
-//            for(int i = 0; i < 100; i++){
-//                UserItemList.add(new UserItem("dummy","User#"+i,"dummy","dummy"));
-//            }
-//
-//            listAdaptorObj = new MainListAdaptor(view.getContext(), UserItemList);
-//            mainContactsListView = (ListView)view.findViewById(R.id.listViewMainContacts);
-//            mainContactsListView.setAdapter(listAdaptorObj);
-//        }
-
 
 
         return view;

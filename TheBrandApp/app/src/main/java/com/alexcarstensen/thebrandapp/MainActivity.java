@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
         mapFab = (FloatingActionButton) findViewById(R.id.fapMapButton);
         addFab = (FloatingActionButton) findViewById(R.id.fapAddButton);
 
-
         mapFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -65,26 +64,16 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
                 Snackbar.make(view, "Add!", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
 
-                // ** For debugging **
-                for(int i = 0; i < 100; i++){
-                    userItemList.add(new UserItem("dummy","User#"+i,"dummy","dummy"));
-                }
-
-                _fragmentContactList.setUserItemList(userItemList);
-                //**                **
+                setUserContacts();
             }
         });
 
 
-
-
-
-
     }
 
-    public void startChatWithUserNumber(int userItemNumber){
+    public void startChatWithUserNumber(int userItemNumber) {
 
-        if(userItemList != null) {
+        if (userItemList != null) {
             UserItem tempUserItem = userItemList.get(userItemNumber);
 
 
@@ -94,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
             Bundle userChatInfoBundle = new Bundle();
             userChatInfoBundle.putString(SEND_USER_CHAT_INFO, mainUserItem.get_userName());
-            userChatInfoBundle.putString(SEND_CONTACT_CHAT_INFO,tempUserItem.get_userName());
+            userChatInfoBundle.putString(SEND_CONTACT_CHAT_INFO, tempUserItem.get_userName());
 
             chatIntent.putExtras(userChatInfoBundle);
 
@@ -103,10 +92,16 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
     }
 
-//    @Override
-//    public void onDataPass(String data) {
-////        Log.d("LOG","hello " + data);
-//        Toast.makeText(getApplication().getApplicationContext(),"TEST", Toast.LENGTH_SHORT).show();
-//    }
+    private void setUserContacts(){
+
+        // ** For debugging **
+        for(int i = 0; i < 100; i++){
+            userItemList.add(new UserItem("dummy","User#"+i,"dummy","dummy"));
+        }
+        //**                **
+        _fragmentContactList.setUserItemList(userItemList);
+
+    }
+
 
 }

@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,13 +18,13 @@ import java.util.ArrayList;
  * Created by jeppe on 05-10-2016.
  */
 
-
+// REF: Made from ArniesFragmentsMovie example
 public class ChatMessageListFragment extends Fragment{
 
     final static String STATE_CHAT_MESSAGE_ARRAY = "ChatMessageArray";
 
     private ChatListAdaptor listAdaptorObj;
-    private ListView chatMessagesListView;
+    private GridView chatMessagesListView;
     private ArrayList<MessageItem> MessageItemList = new ArrayList<MessageItem>();
 
     OnChatSelectedListener chatActivityCallback;
@@ -32,6 +33,9 @@ public class ChatMessageListFragment extends Fragment{
 
     public ChatMessageListFragment() {
     }
+
+
+
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container,
@@ -41,13 +45,13 @@ public class ChatMessageListFragment extends Fragment{
         view = inflater.inflate(R.layout.message_list_fragment_chat,
                 container, false);
 
-        chatMessagesListView = (ListView)view.findViewById(R.id.listViewChatMessages);
+        chatMessagesListView = (GridView)view.findViewById(R.id.listViewChatMessages);
 
 
         if(savedInstanceState != null){
 
             MessageItemList = savedInstanceState.getParcelableArrayList(STATE_CHAT_MESSAGE_ARRAY);
-            listAdaptorObj = new ChatListAdaptor(view.getContext(), MessageItemList);
+            listAdaptorObj = new ChatListAdaptor(view.getContext(), MessageItemList,chatActivityCallback.getMainUserName(),chatActivityCallback.getContactName());
             chatMessagesListView.setAdapter(listAdaptorObj);
 
         }
@@ -58,31 +62,11 @@ public class ChatMessageListFragment extends Fragment{
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-                //chatActivityCallback.startChatWithUserNumber(position);
+                chatActivityCallback.hideSoftKeyboard(getActivity());
                 Toast.makeText(getActivity().getApplicationContext(),"CLICK", Toast.LENGTH_SHORT).show();
             }
         });
 
-
-
-//        textView = (TextView) view.findViewById(R.id.textViewUserContact);
-//        textView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                //Toast.makeText(getActivity(), "", Toast.LENGTH_SHORT).show();
-//
-//                int x = 0;
-//            }
-//        });
-//        else{
-//            for(int i = 0; i < 100; i++){
-//                MessageItemList.add(new MessageItem("dummy","User#"+i,"dummy","dummy"));
-//            }
-//
-//            listAdaptorObj = new ChatListAdaptor(view.getContext(), MessageItemList);
-//            chatMessagesListView = (ListView)view.findViewById(R.id.listViewMainContacts);
-//            chatMessagesListView.setAdapter(listAdaptorObj);
-//        }
 
 
 
@@ -93,8 +77,8 @@ public class ChatMessageListFragment extends Fragment{
 
         if (messageItemList_!=null){
             MessageItemList = messageItemList_;
-            listAdaptorObj = new ChatListAdaptor(view.getContext(), MessageItemList);
-            chatMessagesListView = (ListView)view.findViewById(R.id.listViewChatMessages);
+            listAdaptorObj = new ChatListAdaptor(view.getContext(), MessageItemList,chatActivityCallback.getMainUserName(),chatActivityCallback.getContactName());
+            chatMessagesListView = (GridView)view.findViewById(R.id.listViewChatMessages);
             chatMessagesListView.setAdapter(listAdaptorObj);;
         }
     }
@@ -106,6 +90,9 @@ public class ChatMessageListFragment extends Fragment{
     // REF: https://developer.android.com/training/basics/fragments/communicating.html
     public interface OnChatSelectedListener {
         //public void startChatWithUserNumber(int messageItemNumber);
+        public String getMainUserName();
+        public String getContactName();
+        public void hideSoftKeyboard(Activity activity);
     }
 
     @Override
@@ -123,6 +110,7 @@ public class ChatMessageListFragment extends Fragment{
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+
         outState.putParcelableArrayList(STATE_CHAT_MESSAGE_ARRAY, MessageItemList);
 
     }

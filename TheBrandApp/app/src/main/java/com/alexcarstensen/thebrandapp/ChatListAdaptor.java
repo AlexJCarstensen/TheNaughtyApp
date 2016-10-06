@@ -14,22 +14,26 @@ import java.util.ArrayList;
  */
 
 
-
+// REF: Made from ArniesFragmentsMovie example
 public class ChatListAdaptor extends BaseAdapter {
 
-    Context context;
-    ArrayList<MessageItem> MessageItems;
-    MessageItem MessageItemObj;
+    private Context _context;
+    private ArrayList<MessageItem> _MessageItems;
+    private MessageItem _MessageItemObj;
+    private String _mainUserName;
+    private String _contactName;
 
-    public ChatListAdaptor(Context c, ArrayList<MessageItem> MessageItemList){
-        this.context = c;
-        this.MessageItems = MessageItemList;
+    public ChatListAdaptor(Context c, ArrayList<MessageItem> MessageItemList, String mainUserName, String contactName){
+        this._context = c;
+        this._MessageItems = MessageItemList;
+        this._mainUserName = mainUserName;
+        this._contactName = contactName;
     }
 
     @Override
     public int getCount() {
-        if(MessageItems!=null) {
-            return MessageItems.size();
+        if(_MessageItems !=null) {
+            return _MessageItems.size();
         } else {
             return 0;
         }
@@ -37,8 +41,8 @@ public class ChatListAdaptor extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        if(MessageItems!=null) {
-            return MessageItems.get(position);
+        if(_MessageItems !=null) {
+            return _MessageItems.get(position);
         } else {
             return null;
         }
@@ -52,20 +56,33 @@ public class ChatListAdaptor extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        MessageItemObj = MessageItems.get(position);
+        _MessageItemObj = _MessageItems.get(position);
+
+        if(_MessageItemObj!=null){
+
+            if(_MessageItemObj.get_sender().equals(_mainUserName)){
+
+                LayoutInflater demoInflater = (LayoutInflater) this._context
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = demoInflater.inflate(R.layout.list_message_left_item, null);
+            }
+            else if(_MessageItemObj.get_sender().equals(_contactName)){
+                LayoutInflater demoInflater = (LayoutInflater) this._context
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = demoInflater.inflate(R.layout.list_message_right_item, null);
+            }
 
 
-        if (convertView == null) {
-            LayoutInflater demoInflator = (LayoutInflater) this.context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = demoInflator.inflate(R.layout.list_message_left_item, null);
-        }
+            if(_MessageItemObj.get_sender().equals(_mainUserName)){
 
+                TextView txtMessageLeft = (TextView) convertView.findViewById(R.id.textViewMessageLeft);
+                txtMessageLeft.setText(_MessageItemObj.get_message());
+            }
+            else if(_MessageItemObj.get_sender().equals(_contactName)){
+                TextView txtMessageRight = (TextView) convertView.findViewById(R.id.textViewMessageRight);
+                txtMessageRight.setText(_MessageItemObj.get_message());
+            }
 
-
-        if(MessageItemObj!=null){
-            TextView txtMessageLeft = (TextView) convertView.findViewById(R.id.textViewMessageLeft);
-            txtMessageLeft.setText(MessageItemObj.get_message());
         }
         return convertView;
     }

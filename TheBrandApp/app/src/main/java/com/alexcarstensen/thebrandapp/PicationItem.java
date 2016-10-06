@@ -9,7 +9,7 @@ import android.os.Parcelable;
 
 
 
-
+// REF: Made from ArniesFragmentsMovie example
 public class PicationItem implements Parcelable {
 
 

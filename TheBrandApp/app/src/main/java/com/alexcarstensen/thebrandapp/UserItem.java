@@ -7,6 +7,7 @@ import android.os.Parcelable;
  * Created by jeppe on 03-10-2016.
  */
 
+// REF: Made from ArniesFragmentsMovie example
 public class UserItem implements Parcelable{
 
 

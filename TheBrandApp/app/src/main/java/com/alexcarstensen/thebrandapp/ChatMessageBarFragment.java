@@ -10,7 +10,7 @@ import android.view.ViewGroup;
  * Created by jeppe on 05-10-2016.
  */
 
-
+// REF: Made from ArniesFragmentsMovie example
 public class ChatMessageBarFragment extends Fragment {
 
 

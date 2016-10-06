@@ -11,4 +11,5 @@
     <string name="signupCreateAccountBtn">Create Account</string>
     <string name="signupAlreadyMember">Already a member? Login</string>
     <string name="title_activity_map">Map</string>
+    <string name="write_msg_here">Write message here</string>
 </resources>
