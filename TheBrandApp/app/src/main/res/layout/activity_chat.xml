@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_chat"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context="com.alexcarstensen.thebrandapp.ChatActivity">
-
 
     <fragment
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -15,8 +17,10 @@
         tools:layout="@layout/message_list_fragment_chat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_above="@+id/editTextChat" />
+        android:layout_above="@+id/editTextChat"
+        android:layout_marginBottom="40sp"
+        />
+
 
     <EditText
         android:layout_width="wrap_content"
@@ -29,6 +33,36 @@
         android:imeOptions="actionDone"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="40sp"
+        android:orientation="vertical"
+        android:background="@drawable/chat_tool_bar"
+        android:layout_above="@+id/editTextChat"
+        android:layout_alignParentStart="true">
+
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:srcCompat="@android:drawable/ic_menu_mapmode"
+            android:id="@+id/imageButton"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="80sp" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="80sp"
+            app:srcCompat="@android:drawable/ic_menu_camera"
+            android:id="@+id/imageButton2" />
+
+
+    </RelativeLayout>
 
 
 </RelativeLayout>

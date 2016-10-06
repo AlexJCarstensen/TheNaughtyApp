@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 // REF: Made from ArniesFragmentsMovie example
 public class ChatActivity extends AppCompatActivity implements ChatMessageListFragment.OnChatSelectedListener{
 
+    final static String STATE_CHAT_MESSAGE_ARRAY = "ChatMessageArray";
     private FragmentManager _fm;
     private ChatMessageListFragment _fragmentMessageList;
     private EditText _editTextChat;
@@ -28,6 +30,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_chat);
 
         _fm = getSupportFragmentManager();
@@ -41,18 +44,24 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
         mainUserName = bundle.getString(MainActivity.SEND_USER_CHAT_INFO);
         contactName = bundle.getString(MainActivity.SEND_CONTACT_CHAT_INFO);
 
+        if(savedInstanceState != null) {
 
-        // ** For debugging **
-        for(int i = 0; i < 20; i++){
-
-            if(i%2 == 1) {
-                messageItemList.add(new MessageItem("dummy", mainUserName, contactName, "Hi#" + i, "dummy", "dummy", "dummy"));
-            }
-            else{
-                messageItemList.add(new MessageItem("dummy", contactName, mainUserName, "Hi#" + i, "dummy", "dummy", "dummy"));
-            }
+            messageItemList = savedInstanceState.getParcelableArrayList(STATE_CHAT_MESSAGE_ARRAY);
+            _fragmentMessageList.setMessageItemList(messageItemList);
         }
-        // **               **
+        else{
+            // ** For debugging **
+            for (int i = 0; i < 6; i++) {
+
+                if (i % 2 == 1) {
+                    messageItemList.add(new MessageItem("dummy", mainUserName, contactName, "Hi#" + i, "dummy", "dummy", "dummy"));
+                } else {
+                    messageItemList.add(new MessageItem("dummy", contactName, mainUserName, "Hi#" + i, "dummy", "dummy", "dummy"));
+                }
+            }
+            // **               **
+        }
+
         _fragmentMessageList.setMessageItemList(messageItemList);
 
         _editTextChat.setHint(R.string.write_msg_here);
@@ -98,4 +107,12 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
                 activity.getCurrentFocus().getWindowToken(), 0);
     }
 
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelableArrayList(STATE_CHAT_MESSAGE_ARRAY, messageItemList);
+
+    }
 }

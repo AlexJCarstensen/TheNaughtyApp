@@ -21,7 +21,7 @@ import java.util.ArrayList;
 // REF: Made from ArniesFragmentsMovie example
 public class ChatMessageListFragment extends Fragment{
 
-    final static String STATE_CHAT_MESSAGE_ARRAY = "ChatMessageArray";
+
 
     private ChatListAdaptor listAdaptorObj;
     private GridView chatMessagesListView;
@@ -48,13 +48,13 @@ public class ChatMessageListFragment extends Fragment{
         chatMessagesListView = (GridView)view.findViewById(R.id.listViewChatMessages);
 
 
-        if(savedInstanceState != null){
-
-            MessageItemList = savedInstanceState.getParcelableArrayList(STATE_CHAT_MESSAGE_ARRAY);
-            listAdaptorObj = new ChatListAdaptor(view.getContext(), MessageItemList,chatActivityCallback.getMainUserName(),chatActivityCallback.getContactName());
-            chatMessagesListView.setAdapter(listAdaptorObj);
-
-        }
+//        if(savedInstanceState != null){
+//
+//            MessageItemList = savedInstanceState.getParcelableArrayList(STATE_CHAT_MESSAGE_ARRAY);
+//            listAdaptorObj = new ChatListAdaptor(view.getContext(), MessageItemList,chatActivityCallback.getMainUserName(),chatActivityCallback.getContactName());
+//            chatMessagesListView.setAdapter(listAdaptorObj);
+//
+//        }
 
         // REF: http://www.android-examples.com/set-onclicklistener-in-listview-in-android-programmatically/
         chatMessagesListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
@@ -107,13 +107,7 @@ public class ChatMessageListFragment extends Fragment{
         }
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
 
-        outState.putParcelableArrayList(STATE_CHAT_MESSAGE_ARRAY, MessageItemList);
-
-    }
 
 }
 
