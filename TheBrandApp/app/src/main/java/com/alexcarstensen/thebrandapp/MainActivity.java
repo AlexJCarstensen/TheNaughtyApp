@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
         _fragmentContactList = (MainContactListFragment) _fm.findFragmentById(R.id.main_fragment_list);
 
         // ** For debugging **
-        mainUserItem = new UserItem("dummy","Jeppe","dummy","dummy");
+        mainUserItem = new UserItem("Jeppe","dummy");
         // **               **
 
         mapFab = (FloatingActionButton) findViewById(R.id.fapMapButton);
@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
         // ** For debugging **
         for(int i = 0; i < 100; i++){
-            userItemList.add(new UserItem("dummy","User#"+i,"dummy","dummy"));
+            userItemList.add(new UserItem("User#"+i,"dummy"));
         }
         //**                **
         _fragmentContactList.setUserItemList(userItemList);

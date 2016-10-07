@@ -13,11 +13,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alexcarstensen.thebrandapp.Helpers.EmailNameHelper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class SignupActivity extends AppCompatActivity
 {
@@ -33,6 +36,7 @@ public class SignupActivity extends AppCompatActivity
     //Firebase
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private DatabaseReference mDatabase;
 
     //ReturnIntent
     public static String EMAIL_RETURN = "email";
@@ -87,6 +91,8 @@ public class SignupActivity extends AppCompatActivity
                 }
             }
         };
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
     }
 
     @Override
@@ -192,7 +198,7 @@ public class SignupActivity extends AppCompatActivity
         String userName = _userNameField.getText().toString();
 
         // TODO authenticate with server and Create account
-        UserItem user = new UserItem(null, userName, email, password);
+        final UserItem user = new UserItem(userName,email);
 
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -218,6 +224,8 @@ public class SignupActivity extends AppCompatActivity
                             Toast.makeText(SignupActivity.this, "Creating- and autheticating user succeeded!",
                                     Toast.LENGTH_SHORT).show();
 
+                            //Write new user to database
+                            WriteNewUserToDatabase(user);
                             Intent resultIntent = new Intent();
 
                             resultIntent.putExtra(EMAIL_RETURN, email);
@@ -229,6 +237,12 @@ public class SignupActivity extends AppCompatActivity
                         }
                     }
                 });
+    }
+
+    private void WriteNewUserToDatabase(UserItem user)
+    {
+        //Creating new entry in database with the name of the email
+        mDatabase.child("Users").child( EmailNameHelper.ConvertEmail(user.get_email())).setValue(user);
     }
 
 
