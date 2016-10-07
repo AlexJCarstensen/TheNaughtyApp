@@ -38,9 +38,6 @@ public class SignupActivity extends AppCompatActivity
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference mDatabase;
 
-    //ReturnIntent
-    public static String EMAIL_RETURN = "email";
-    public static String PASSWORD_RETURN = "password";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -215,9 +212,6 @@ public class SignupActivity extends AppCompatActivity
                             progressDialog.dismiss();
                             Toast.makeText(SignupActivity.this, "Creating- and autheticating user failed",
                                     Toast.LENGTH_SHORT).show();
-
-
-
                         }
                         else{
                             progressDialog.dismiss();
@@ -228,10 +222,10 @@ public class SignupActivity extends AppCompatActivity
                             WriteNewUserToDatabase(user);
                             Intent resultIntent = new Intent();
 
-                            resultIntent.putExtra(EMAIL_RETURN, email);
-                            resultIntent.putExtra(PASSWORD_RETURN, password);
+                            resultIntent.putExtra(getResources().getString(R.string.emailHint), email);
+                            resultIntent.putExtra(getResources().getString(R.string.passwordHint), password);
 
-                            setResult(LoginActivity.REQUEST_SIGNUP, resultIntent);
+                            setResult(LoginActivity.RESULT_OK, resultIntent);
                             finish();
 
                         }

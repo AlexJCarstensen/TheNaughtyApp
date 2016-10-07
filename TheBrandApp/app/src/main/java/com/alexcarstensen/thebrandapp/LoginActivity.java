@@ -21,9 +21,8 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity
 {
-    private static final String TAG = "LoginActivity";
     public static final int REQUEST_SIGNUP = 0;
-
+    private static final String TAG = "LoginActivity";
     private EditText _emailField;
     private EditText _passwordField;
     private Button _loginButton;
@@ -62,6 +61,8 @@ public class LoginActivity extends AppCompatActivity
                 startActivityForResult(intent, REQUEST_SIGNUP);
             }
         });
+
+
     }
 
     //Below code is taken from firebase documentation
@@ -168,7 +169,7 @@ public class LoginActivity extends AppCompatActivity
     {
         Log.d(TAG, "Authenticating with server");
 
-        ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this);
+        final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this);
         progressDialog.setMessage("Authenticating with server...");
         progressDialog.show();
 
@@ -188,12 +189,13 @@ public class LoginActivity extends AppCompatActivity
                         // the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
+                            progressDialog.dismiss();
                             Log.w(TAG, "signInWithEmail:failed", task.getException());
                             Toast.makeText(LoginActivity.this, "Authenticastion failed... try again",
                                     Toast.LENGTH_SHORT).show();
                         }
                         else{
-
+                            progressDialog.dismiss();
                             //Todo check if you want anything sent to the mainactivity
                             Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
 
@@ -215,8 +217,8 @@ public class LoginActivity extends AppCompatActivity
             if (resultCode == RESULT_OK)
             {
                 // TODO Login automatically or return used data and put them in fields??
-                String email = data.getStringExtra(SignupActivity.EMAIL_RETURN);
-                String password = data.getStringExtra(SignupActivity.PASSWORD_RETURN);
+                String email = data.getStringExtra(getResources().getString(R.string.emailHint));
+                String password = data.getStringExtra(getResources().getString(R.string.passwordHint));
 
                 _emailField.setText(email);
                 _passwordField.setText(password);
