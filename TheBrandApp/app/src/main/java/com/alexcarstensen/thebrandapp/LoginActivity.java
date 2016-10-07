@@ -15,7 +15,7 @@ import android.widget.Toast;
 public class LoginActivity extends AppCompatActivity
 {
     private static final String TAG = "LoginActivity";
-    private static final int REQUEST_SIGNUP = 0;
+    public static final int REQUEST_SIGNUP = 0;
 
     private EditText _emailField;
     private EditText _passwordField;
@@ -140,6 +140,11 @@ public class LoginActivity extends AppCompatActivity
             if (resultCode == RESULT_OK)
             {
                 // TODO Login automatically or return used data and put them in fields??
+                String email = data.getStringExtra(SignupActivity.EMAIL_RETURN);
+                String password = data.getStringExtra(SignupActivity.PASSWORD_RETURN);
+
+                _emailField.setText(email);
+                _passwordField.setText(password);
             }
         }
     }

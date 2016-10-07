@@ -1,7 +1,9 @@
 package com.alexcarstensen.thebrandapp;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Patterns;
@@ -10,6 +12,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class SignupActivity extends AppCompatActivity
 {
@@ -22,11 +30,21 @@ public class SignupActivity extends AppCompatActivity
     private Button _signupButton;
     private TextView _loginText;
 
+    //Firebase
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+
+    //ReturnIntent
+    public static String EMAIL_RETURN = "email";
+    public static String PASSWORD_RETURN = "password";
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
+
+        SetupFirebase();
 
         findViews();
 
@@ -47,6 +65,45 @@ public class SignupActivity extends AppCompatActivity
                 finish();
             }
         });
+    }
+
+    private void SetupFirebase()
+    {
+        //Below code is taken from firebase documentation
+        mAuth = FirebaseAuth.getInstance();
+
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if(user != null)
+                {
+                    // User is signed in
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                }
+                else{
+                    // User is signed out
+                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                }
+            }
+        };
+    }
+
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+        if(mAuthListener != null)
+        {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
     }
 
     private void findViews()
@@ -126,16 +183,52 @@ public class SignupActivity extends AppCompatActivity
     {
         Log.d(TAG, "Authenticating with server");
 
-        ProgressDialog progressDialog = new ProgressDialog(SignupActivity.this);
+        final ProgressDialog progressDialog = new ProgressDialog(SignupActivity.this);
         progressDialog.setMessage("Creating account...");
         progressDialog.show();
 
-        String email = _emailField.getText().toString();
-        String password = _passwordField.getText().toString();
+        final String email = _emailField.getText().toString();
+        final String password = _passwordField.getText().toString();
         String userName = _userNameField.getText().toString();
 
         // TODO authenticate with server and Create account
         UserItem user = new UserItem(null, userName, email, password);
+
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        Log.d(TAG, "createUserWithEmail:onComplete:" + task.isSuccessful());
+
+                        // If sign in fails, display a message to the user. If sign in succeeds
+                        // the auth state listener will be notified and logic to handle the
+                        // signed in user can be handled in the listener.
+
+                        if(!task.isSuccessful())
+                        {
+                            progressDialog.dismiss();
+                            Toast.makeText(SignupActivity.this, "Creating- and autheticating user failed",
+                                    Toast.LENGTH_SHORT).show();
+
+
+
+                        }
+                        else{
+                            progressDialog.dismiss();
+                            Toast.makeText(SignupActivity.this, "Creating- and autheticating user succeeded!",
+                                    Toast.LENGTH_SHORT).show();
+
+                            Intent resultIntent = new Intent();
+
+                            resultIntent.putExtra(EMAIL_RETURN, email);
+                            resultIntent.putExtra(PASSWORD_RETURN, password);
+
+                            setResult(LoginActivity.REQUEST_SIGNUP, resultIntent);
+                            finish();
+
+                        }
+                    }
+                });
     }
 
 
