@@ -79,7 +79,6 @@ public class MainContactListFragment extends Fragment {
 
 
 
-
     // Container Activity must implement this interface
     // REF: https://developer.android.com/training/basics/fragments/communicating.html
     public interface OnContactSelectedListener {

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">The Brand App</string>
+    <string name="CreateAccount">Ingen bruger? Opret en her</string>
+    <string name="Email">E-mail</string>
+    <string name="LoginBtn">Log ind</string>
+    <string name="action_settings">Opsætning</string>
+    <string name="contacts_string">Kontakter</string>
+    <string name="passwordHint">Kodeord</string>
+    <string name="signupAlreadyMember">Allerede bruger? Log ind her</string>
+    <string name="signupCreateAccountBtn">Opret bruger</string>
+    <string name="signupNameValue">Brugernavn</string>
+    <string name="this_device_do_not_sup_crop">Denne enhed understøtter ikke billed beskæring</string>
+    <string name="title_activity_map">Kort</string>
+    <string name="txtCurrentWeather">Nuværende vejr</string>
+    <string name="txtStatus" translatable="false"></string>
+    <string name="write_msg_here">Skriv chat besked her</string>
+</resources>

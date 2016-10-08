@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -58,31 +59,56 @@ public class ChatListAdaptor extends BaseAdapter {
 
         _MessageItemObj = _MessageItems.get(position);
 
+        // Check for null obj
         if(_MessageItemObj!=null){
 
-            if(_MessageItemObj.get_sender().equals(_mainUserName)){
+            // Check if message has a picture
+            if(_MessageItemObj.get_hasImage() == 0) {
 
-                LayoutInflater demoInflater = (LayoutInflater) this._context
-                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = demoInflater.inflate(R.layout.list_message_left_item, null);
+                // Check sender/receiver inflate proper textView
+                if (_MessageItemObj.get_sender().equals(_mainUserName)) {
+
+                    LayoutInflater demoInflater = (LayoutInflater) this._context
+                            .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    convertView = demoInflater.inflate(R.layout.list_message_left_item, null);
+                } else if (_MessageItemObj.get_sender().equals(_contactName)) {
+                    LayoutInflater demoInflater = (LayoutInflater) this._context
+                            .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    convertView = demoInflater.inflate(R.layout.list_message_right_item, null);
+                }
+
+                // Check sender/receiver set text in textView
+                if (_MessageItemObj.get_sender().equals(_mainUserName)) {
+
+                    TextView txtMessageLeft = (TextView) convertView.findViewById(R.id.textViewMessageLeft);
+                    txtMessageLeft.setText(_MessageItemObj.get_message());
+                } else if (_MessageItemObj.get_sender().equals(_contactName)) {
+                    TextView txtMessageRight = (TextView) convertView.findViewById(R.id.textViewMessageRight);
+                    txtMessageRight.setText(_MessageItemObj.get_message());
+                }
             }
-            else if(_MessageItemObj.get_sender().equals(_contactName)){
-                LayoutInflater demoInflater = (LayoutInflater) this._context
-                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = demoInflater.inflate(R.layout.list_message_right_item, null);
+            else if(_MessageItemObj.get_hasImage()==1){
+
+                // Check sender/receiver inflate proper imageView
+                if (_MessageItemObj.get_sender().equals(_mainUserName)) {
+                    LayoutInflater demoInflater = (LayoutInflater) this._context
+                            .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    convertView = demoInflater.inflate(R.layout.list_picture_message_left_item, null);
+                } else if (_MessageItemObj.get_sender().equals(_contactName)) {
+                    LayoutInflater demoInflater = (LayoutInflater) this._context
+                            .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    convertView = demoInflater.inflate(R.layout.list_picture_message_right_item, null);
+                }
+
+                // Check sender/receiver set bitmap in imageView
+                if (_MessageItemObj.get_sender().equals(_mainUserName)) {
+                    ImageView imgViewMessageLeft = (ImageView) convertView.findViewById(R.id.imageViewMessageLeft);
+                    imgViewMessageLeft.setImageBitmap(_MessageItemObj.get_imageBitmap());
+                } else if (_MessageItemObj.get_sender().equals(_contactName)) {
+                    ImageView imgViewMessageRight = (ImageView) convertView.findViewById(R.id.imageViewMessageRight);
+                    imgViewMessageRight.setImageBitmap(_MessageItemObj.get_imageBitmap());
+                }
             }
-
-
-            if(_MessageItemObj.get_sender().equals(_mainUserName)){
-
-                TextView txtMessageLeft = (TextView) convertView.findViewById(R.id.textViewMessageLeft);
-                txtMessageLeft.setText(_MessageItemObj.get_message());
-            }
-            else if(_MessageItemObj.get_sender().equals(_contactName)){
-                TextView txtMessageRight = (TextView) convertView.findViewById(R.id.textViewMessageRight);
-                txtMessageRight.setText(_MessageItemObj.get_message());
-            }
-
         }
         return convertView;
     }

@@ -1,5 +1,6 @@
 package com.alexcarstensen.thebrandapp;
 
+import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -10,36 +11,38 @@ import android.os.Parcelable;
 // REF: Made from ArniesFragmentsMovie example
 public class MessageItem implements Parcelable {
 
-
-    private String _relation_fk;
     private String _sender;
     private String _receiver;
     private String _message;
     private String _timestamp;
-    private String _hasImage;// Skal ændres til bool
-    private String _imageId_fk;
+    private int _hasImage;// Skal ændres til bool
+    private String _imageUrl;
+    private Bitmap _imageBitmap;
+    private String _latitude;
+    private String _longitude;
+
+
 
     public MessageItem(){};
 
-    public MessageItem(String relation_fk, String sender, String _receiver, String message, String timestamp, String hasImage, String imageId_fk){
-
-        this._relation_fk = relation_fk;
+    public MessageItem( String sender, String _receiver, String message, String timestamp, int hasImage){
         this._sender = sender;
         this._receiver = _receiver;
         this._message = message;
         this._timestamp = timestamp;
         this._hasImage = hasImage;
-        this._imageId_fk = imageId_fk;
     }
 
     protected MessageItem(Parcel in) {
-        _relation_fk = in.readString();
         _sender = in.readString();
         _receiver = in.readString();
         _message = in.readString();
         _timestamp = in.readString();
-        _hasImage = in.readString();
-        _imageId_fk = in.readString();
+        _hasImage = in.readInt();
+        _imageUrl = in.readString();
+        _imageBitmap = in.readParcelable(null); //REF: http://stackoverflow.com/questions/13417163/parcel-bitmap-android
+        _latitude = in.readString();
+        _longitude = in.readString();
     }
 
     public static final Creator<MessageItem> CREATOR = new Creator<MessageItem>() {
@@ -54,9 +57,6 @@ public class MessageItem implements Parcelable {
         }
     };
 
-
-    public String get_relation_fk() {return _relation_fk;}
-    public void set_relation_fk(String relation_fk) {this._relation_fk = relation_fk;}
 
     public String get_sender() {return _sender;}
     public void set_sender(String sender) {this._sender = sender;}
@@ -76,14 +76,29 @@ public class MessageItem implements Parcelable {
         this._timestamp = timestamp;
     }
 
-    public String get_imageId_fk() {return _imageId_fk;}
-    public void set_imageId_fk(String timestamp) {
+    public String get_imageUrl() {return _imageUrl;}
+    public void set_imageUrl(String timestamp) {
         this._timestamp = timestamp;
     }
 
-    public String get_hasImage() {return _hasImage;}
-    public void set_hasImage(String hasImage) {
+    public int get_hasImage() {return _hasImage;}
+    public void set_hasImage(int hasImage) {
         this._hasImage = hasImage;
+    }
+
+    public Bitmap get_imageBitmap() {return _imageBitmap;}
+    public void set_imageBitmap(Bitmap imageBitmap) {
+        this._imageBitmap = imageBitmap;
+    }
+
+    public String get_latitude() {return _latitude;}
+    public void set_latitude(String latitude) {
+        this._latitude = latitude;
+    }
+
+    public String get_longitude() {return _longitude;}
+    public void set_longitude(String longtitude) {
+        this._longitude = longtitude;
     }
 
     @Override
@@ -94,12 +109,14 @@ public class MessageItem implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
 
-        dest.writeString(_relation_fk);
         dest.writeString(_sender);
         dest.writeString(_receiver);
         dest.writeString(_message);
         dest.writeString(_timestamp);
-        dest.writeString(_hasImage);
-        dest.writeString(_imageId_fk);
+        dest.writeInt(_hasImage);
+        dest.writeString(_imageUrl);
+        dest.writeParcelable(_imageBitmap,flags); // REF: http://stackoverflow.com/questions/13417163/parcel-bitmap-android
+        dest.writeString(_latitude);
+        dest.writeString(_longitude);
     }
 }

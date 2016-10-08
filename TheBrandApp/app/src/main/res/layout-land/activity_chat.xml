@@ -47,7 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             app:srcCompat="@android:drawable/ic_menu_mapmode"
-            android:id="@+id/imageButton"
+            android:id="@+id/imageButtonMap"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
             android:layout_marginStart="80sp" />
@@ -59,7 +59,7 @@
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="80sp"
             app:srcCompat="@android:drawable/ic_menu_camera"
-            android:id="@+id/imageButton2" />
+            android:id="@+id/imageButtonCamera" />
 
 
     </RelativeLayout>

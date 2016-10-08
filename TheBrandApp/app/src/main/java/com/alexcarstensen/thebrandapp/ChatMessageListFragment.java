@@ -63,6 +63,8 @@ public class ChatMessageListFragment extends Fragment{
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
                 chatActivityCallback.hideSoftKeyboard(getActivity());
+                // Lav interface her der reagere på om det er hasimage eller ej
+                //   Start navigation ved click
                 Toast.makeText(getActivity().getApplicationContext(),"CLICK", Toast.LENGTH_SHORT).show();
             }
         });
