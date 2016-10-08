@@ -3,6 +3,7 @@ package com.alexcarstensen.thebrandapp;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Patterns;
@@ -12,15 +13,24 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 public class LoginActivity extends AppCompatActivity
 {
+    public static final int REQUEST_SIGNUP = 0;
     private static final String TAG = "LoginActivity";
-    private static final int REQUEST_SIGNUP = 0;
-
     private EditText _emailField;
     private EditText _passwordField;
     private Button _loginButton;
     private TextView _signupText;
+
+    //Firebase
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -28,7 +38,10 @@ public class LoginActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        SetupFireBase();
+
         findViews();
+
 
         _loginButton.setOnClickListener(new View.OnClickListener()
         {
@@ -48,6 +61,44 @@ public class LoginActivity extends AppCompatActivity
                 startActivityForResult(intent, REQUEST_SIGNUP);
             }
         });
+
+
+    }
+
+    //Below code is taken from firebase documentation
+    private void SetupFireBase()
+    {
+        mAuth = FirebaseAuth.getInstance();
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+
+                if (user != null) {
+                    // User is signed in
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                } else {
+                    // User is signed out
+                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                }
+            }
+        };
+    }
+
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
     }
 
     private void findViews()
@@ -118,7 +169,7 @@ public class LoginActivity extends AppCompatActivity
     {
         Log.d(TAG, "Authenticating with server");
 
-        ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this);
+        final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this);
         progressDialog.setMessage("Authenticating with server...");
         progressDialog.show();
 
@@ -126,7 +177,33 @@ public class LoginActivity extends AppCompatActivity
         String password = _passwordField.getText().toString();
 
         // TODO authenticate with server and login
-        UserItem user = new UserItem(null, "", email, password);
+        UserItem user = new UserItem(email, password);
+
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
+
+                        // If sign in fails, display a message to the user. If sign in succeeds
+                        // the auth state listener will be notified and logic to handle the
+                        // signed in user can be handled in the listener.
+                        if (!task.isSuccessful()) {
+                            progressDialog.dismiss();
+                            Log.w(TAG, "signInWithEmail:failed", task.getException());
+                            Toast.makeText(LoginActivity.this, "Authenticastion failed... try again",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            progressDialog.dismiss();
+                            //Todo check if you want anything sent to the mainactivity
+                            Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
+
+                            startActivity(mainIntent);
+                            finish();
+                        }
+                    }
+                });
 
     }
 
@@ -140,6 +217,11 @@ public class LoginActivity extends AppCompatActivity
             if (resultCode == RESULT_OK)
             {
                 // TODO Login automatically or return used data and put them in fields??
+                String email = data.getStringExtra(getResources().getString(R.string.emailHint));
+                String password = data.getStringExtra(getResources().getString(R.string.passwordHint));
+
+                _emailField.setText(email);
+                _passwordField.setText(password);
             }
         }
     }

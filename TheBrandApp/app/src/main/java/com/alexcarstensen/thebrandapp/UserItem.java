@@ -2,35 +2,165 @@ package com.alexcarstensen.thebrandapp;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+
+import com.google.firebase.database.IgnoreExtraProperties;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 /**
  * Created by jeppe on 03-10-2016.
  */
 
 // REF: Made from ArniesFragmentsMovie example
+@IgnoreExtraProperties
 public class UserItem implements Parcelable{
 
 
-    private String _id;
-    private String _userName;
-    private String _email;
-    private String _password;
+
+    private String userName;
+    private String email;
+    private List<Contact> _contacts;
 
     public UserItem(){};
 
-    public UserItem(String id, String userName, String email, String password){
+    public UserItem(String userName, String email){
 
-        this._id = id;
-        this._userName = userName;
-        this._email = email;
-        this._password = password;
+
+        this.userName = userName;
+        this.email = email;
+
+        _contacts = new List<Contact>() {
+            @Override
+            public int size() {
+                return 0;
+            }
+
+            @Override
+            public boolean isEmpty() {
+                return false;
+            }
+
+            @Override
+            public boolean contains(Object o) {
+                return false;
+            }
+
+            @NonNull
+            @Override
+            public Iterator<Contact> iterator() {
+                return null;
+            }
+
+            @NonNull
+            @Override
+            public Object[] toArray() {
+                return new Object[0];
+            }
+
+            @NonNull
+            @Override
+            public <T> T[] toArray(T[] a) {
+                return null;
+            }
+
+            @Override
+            public boolean add(Contact contact) {
+                return false;
+            }
+
+            @Override
+            public boolean remove(Object o) {
+                return false;
+            }
+
+            @Override
+            public boolean containsAll(Collection<?> c) {
+                return false;
+            }
+
+            @Override
+            public boolean addAll(Collection<? extends Contact> c) {
+                return false;
+            }
+
+            @Override
+            public boolean addAll(int index, Collection<? extends Contact> c) {
+                return false;
+            }
+
+            @Override
+            public boolean removeAll(Collection<?> c) {
+                return false;
+            }
+
+            @Override
+            public boolean retainAll(Collection<?> c) {
+                return false;
+            }
+
+            @Override
+            public void clear() {
+
+            }
+
+            @Override
+            public Contact get(int index) {
+                return null;
+            }
+
+            @Override
+            public Contact set(int index, Contact element) {
+                return null;
+            }
+
+            @Override
+            public void add(int index, Contact element) {
+
+            }
+
+            @Override
+            public Contact remove(int index) {
+                return null;
+            }
+
+            @Override
+            public int indexOf(Object o) {
+                return 0;
+            }
+
+            @Override
+            public int lastIndexOf(Object o) {
+                return 0;
+            }
+
+            @Override
+            public ListIterator<Contact> listIterator() {
+                return null;
+            }
+
+            @NonNull
+            @Override
+            public ListIterator<Contact> listIterator(int index) {
+                return null;
+            }
+
+            @NonNull
+            @Override
+            public List<Contact> subList(int fromIndex, int toIndex) {
+                return null;
+            }
+        };
     }
 
     protected UserItem(Parcel in) {
-        _id = in.readString();
-        _userName = in.readString();
-        _email = in.readString();
-        _password = in.readString();
+
+        userName = in.readString();
+        email = in.readString();
+
     }
 
     public static final Creator<UserItem> CREATOR = new Creator<UserItem>() {
@@ -46,22 +176,24 @@ public class UserItem implements Parcelable{
     };
 
 
-    public String get_id() {return _id;}
-    public void set_id(String id) {this._id = id;}
+    public void AddToList(Contact contact)
+    {
+        _contacts.add(contact);
+    }
 
-    public String get_userName() {return _userName;}
+    public String get_userName() {return userName;}
     public void set_userName(String userName) {
-        this._userName = userName;
+        this.userName = userName;
     }
 
-    public String get_email() {return _email;}
+    public String get_email() {return email;}
     public void set_email(String email) {
-        this._email = email;
+        this.email = email;
     }
 
-    public String get_password() {return _password;}
+
     public void set_password(String email) {
-        this._email = email;
+        this.email = email;
     }
 
     @Override
@@ -72,9 +204,9 @@ public class UserItem implements Parcelable{
     @Override
     public void writeToParcel(Parcel dest, int flags) {
 
-        dest.writeString(_id);
-        dest.writeString(_userName);
-        dest.writeString(_email);
-        dest.writeString(_password);
+
+        dest.writeString(userName);
+        dest.writeString(email);
+
     }
 }

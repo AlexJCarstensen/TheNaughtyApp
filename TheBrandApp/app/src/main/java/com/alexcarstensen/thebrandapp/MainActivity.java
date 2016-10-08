@@ -35,8 +35,6 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        // Setup references
         _fm = getSupportFragmentManager();
         _fragmentContactBar = (MainContactBarFragment) _fm.findFragmentById(R.id.main_fragment_bar);
         _fragmentContactList = (MainContactListFragment) _fm.findFragmentById(R.id.main_fragment_list);
