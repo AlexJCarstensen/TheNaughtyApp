@@ -1,90 +1,88 @@
 package com.alexcarstensen.thebrandapp;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import static com.alexcarstensen.thebrandapp.R.id.map;
-
-public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleMap mMap;
-    private boolean _userLocationKnown = false;
-    private boolean _tracing = true;
-    private Location userLocation;
-    private LocationManager locationManager;
-    public static final String EXTRA_USER_LATITUDE = "location_latitude";
-    public static final String EXTRA_USER_LONGITUDE = "location_longitude";
+    private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation;
+    private final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+    private final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION_SET_LOCATION = 2;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
 
+        checkForPermissionIfGrantedInitializeMap();
 
-        ////THISSSS"!
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            mMap.setMyLocationEnabled(true);
-            userLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
-
-        }
-
-        setUpMapIfNeeded();
+        setPictureMarkersOnMap();
     }
 
-    private void setUpMapIfNeeded() {
-        // Do a null check to confirm that we have not already instantiated the map.
-        if (mMap == null) {
-            // Try to obtain the map from the SupportMapFragment.
-            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                    .findFragmentById(map);
-            mapFragment.getMapAsync(this);
-            // Check if we were successful in obtaining the map.
-            if (mMap != null) {
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                        == PackageManager.PERMISSION_GRANTED) {
-                    mMap.setMyLocationEnabled(true);
-                } else {
-                    // Show rationale and request permission.
-                }
+    private void checkForPermissionIfGrantedInitializeMap()
+    {
+        if (ContextCompat.checkSelfPermission(MapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(MapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION))
+                Toast.makeText(this, "This app needs your permission to access your location", Toast.LENGTH_SHORT).show();
+            else
+            {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
 
-                updateMap();
+                getMapFragmentAndInitializeMap();
             }
+        }
+        else
+        {
+            getMapFragmentAndInitializeMap();
+
+            buildGoogleApiClient();
+            mGoogleApiClient.connect();
         }
     }
 
-    private void updateMap() {
-        if (_userLocationKnown) {
+    private void getMapFragmentAndInitializeMap()
+    {
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+    }
 
-            if (!_tracing) {
-                mMap.clear();   //if we are not tracking, remove the marker first
-            }
-
-
-            mMap.addMarker(new MarkerOptions().position(new LatLng(userLocation.getLatitude(), userLocation.getLongitude())).title("You are here!"));
+    private void buildGoogleApiClient()
+    {
+        if (mGoogleApiClient == null)
+        {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
         }
+    }
+    private void setPictureMarkersOnMap()
+    {
     }
 
     /**
@@ -97,60 +95,89 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
      * installed Google Play services and returned to the app.
      */
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(GoogleMap googleMap)
+    {
         mMap = googleMap;
+    }
 
-        if (userLocation != null) {
-            // Add a marker in Sydney and move the camera
-            LatLng sydney = new LatLng(userLocation.getLatitude(), userLocation.getLongitude());
-            //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney").icon(BitmapDescriptorFactory.fromResource(R.drawable.noinfo)));
-            Bitmap test = resize(ContextCompat.getDrawable(this, R.drawable.noinfo));
+    @Override
+    public void onConnected(@Nullable Bundle bundle)
+    {
+        CheckPermissionIfGrantedGetLastKnowLocation();
 
-            mMap.addMarker(new MarkerOptions()
-                    .position(sydney)
-                    .title("Your location")
-                    .icon(BitmapDescriptorFactory.fromBitmap(test)));
-            CameraUpdate yourLocation = CameraUpdateFactory.newLatLngZoom(sydney, 15);
-            mMap.animateCamera(yourLocation);
+        if (mLastLocation != null)
+            zoomToLastKnowLocation();
+    }
+
+    private void CheckPermissionIfGrantedGetLastKnowLocation()
+    {
+        if (ActivityCompat.checkSelfPermission(MapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            ActivityCompat.requestPermissions(MapActivity.this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION_SET_LOCATION);
         }
-        Toast.makeText(this, "ss", Toast.LENGTH_SHORT).show();
+        else
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+    }
+
+    private void zoomToLastKnowLocation()
+    {
+        LatLng lastKnownLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+        mMap.addMarker(new MarkerOptions().position(lastKnownLocation).title("Your Location"));
+        CameraUpdate yourLocation = CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15);
+        mMap.animateCamera(yourLocation);
+    }
+
+
+    @Override
+    protected void onStop()
+    {
+        mGoogleApiClient.disconnect();
+        super.onStop();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch (requestCode)
+        {
+            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION:
+            {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+                    buildGoogleApiClient();
+                    mGoogleApiClient.connect();
+                }
+                else
+                    Toast.makeText(this, "Permission denied to read your Location", Toast.LENGTH_SHORT).show();
+                break;
+            }
+            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION_SET_LOCATION:
+            {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+                }
+                else
+                    Toast.makeText(this, "Permission denied to read your Location", Toast.LENGTH_SHORT).show();
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i)
+    {
 
     }
 
-    private Bitmap resize(Drawable image) {
-        Bitmap b = ((BitmapDrawable) image).getBitmap();
-        return Bitmap.createScaledBitmap(b, 50, 50, false);
-    }
-
-
-    private void broadcastLocationUpdate(Location location){
-
-        Intent update = new Intent("LOCATION_UPDATE");
-        update.putExtra(EXTRA_USER_LATITUDE, location.getLatitude());
-        update.putExtra(EXTRA_USER_LONGITUDE, location.getLongitude());
-        LocalBroadcastManager.getInstance(this).sendBroadcast(update);
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult)
+    {
 
     }
-    private LocationListener locationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-            userLocation = location;
-            broadcastLocationUpdate(location);
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-
-        }
-    };
 }
