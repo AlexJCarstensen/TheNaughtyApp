@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
             // Todo: Sæt main user up fra login - Brug evt. bundle med dette i?
             // ** For debugging **
-            _mainUserItem = new UserItem("dummy_id","Jeppe","dummy_email","dummy_password");
+            _mainUserItem = new UserItem("Jeppe","dummy_email");
             // **               **
         }
 
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
         // Todo: Få fat i contact listen fra databasen
         // ** For debugging **
         for(int i = 0; i < 100; i++){
-            userItemList.add(new UserItem("dummy_id","User#"+i,"dummy_email","dummy_password"));
+            userItemList.add(new UserItem("User#"+i,"dummy_email"));
         }
         //**                **
         _fragmentContactList.setUserItemList(userItemList);
