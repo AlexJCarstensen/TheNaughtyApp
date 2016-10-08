@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 
 import com.google.firebase.database.IgnoreExtraProperties;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -23,7 +24,7 @@ public class UserItem implements Parcelable{
 
     private String userName;
     private String email;
-    private List<Contact> _contacts;
+    private ArrayList<Contact> _contacts;
 
     public UserItem(){};
 
@@ -33,127 +34,7 @@ public class UserItem implements Parcelable{
         this.userName = userName;
         this.email = email;
 
-        _contacts = new List<Contact>() {
-            @Override
-            public int size() {
-                return 0;
-            }
-
-            @Override
-            public boolean isEmpty() {
-                return false;
-            }
-
-            @Override
-            public boolean contains(Object o) {
-                return false;
-            }
-
-            @NonNull
-            @Override
-            public Iterator<Contact> iterator() {
-                return null;
-            }
-
-            @NonNull
-            @Override
-            public Object[] toArray() {
-                return new Object[0];
-            }
-
-            @NonNull
-            @Override
-            public <T> T[] toArray(T[] a) {
-                return null;
-            }
-
-            @Override
-            public boolean add(Contact contact) {
-                return false;
-            }
-
-            @Override
-            public boolean remove(Object o) {
-                return false;
-            }
-
-            @Override
-            public boolean containsAll(Collection<?> c) {
-                return false;
-            }
-
-            @Override
-            public boolean addAll(Collection<? extends Contact> c) {
-                return false;
-            }
-
-            @Override
-            public boolean addAll(int index, Collection<? extends Contact> c) {
-                return false;
-            }
-
-            @Override
-            public boolean removeAll(Collection<?> c) {
-                return false;
-            }
-
-            @Override
-            public boolean retainAll(Collection<?> c) {
-                return false;
-            }
-
-            @Override
-            public void clear() {
-
-            }
-
-            @Override
-            public Contact get(int index) {
-                return null;
-            }
-
-            @Override
-            public Contact set(int index, Contact element) {
-                return null;
-            }
-
-            @Override
-            public void add(int index, Contact element) {
-
-            }
-
-            @Override
-            public Contact remove(int index) {
-                return null;
-            }
-
-            @Override
-            public int indexOf(Object o) {
-                return 0;
-            }
-
-            @Override
-            public int lastIndexOf(Object o) {
-                return 0;
-            }
-
-            @Override
-            public ListIterator<Contact> listIterator() {
-                return null;
-            }
-
-            @NonNull
-            @Override
-            public ListIterator<Contact> listIterator(int index) {
-                return null;
-            }
-
-            @NonNull
-            @Override
-            public List<Contact> subList(int fromIndex, int toIndex) {
-                return null;
-            }
-        };
+        _contacts = new ArrayList<>();
     }
 
     protected UserItem(Parcel in) {
