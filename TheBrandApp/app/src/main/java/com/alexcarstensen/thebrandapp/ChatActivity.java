@@ -188,6 +188,13 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
                 activity.getCurrentFocus().getWindowToken(), 0);
     }
 
+    public void startNavigation(MessageItem msgItem){
+        String lat = msgItem.get_latitude();
+        String lon = msgItem.get_longitude();
+        //Todo: Start navigation intent med lat og lon
+
+    }
+
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
