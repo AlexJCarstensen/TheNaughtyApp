@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alexcarstensen.thebrandapp.Helpers.EmailNameHelper;
+import com.google.android.gms.vision.barcode.Barcode;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -110,11 +111,12 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
             @Override
             public void onClick(View view) {
 
-                // Todo: Lav add contact activity og kald herfra
+
                 // ** For debugging **
                 Toast.makeText(getApplication().getApplicationContext(),"add user", Toast.LENGTH_SHORT).show();
 
 
+                //TODO: Lav pænere dialog
                 //creating dialog to add contact
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
@@ -130,37 +132,42 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        //TODO: contact server and check if user is in database
+
 
                         ValueEventListener userListener = new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                                //Get User object from database
+
 
                                 String contactEmail = emailView.getText().toString().toLowerCase();
                                 String convertedEmail = EmailNameHelper.ConvertEmail(contactEmail);
 
 
 
-
+                                //Checking if user is in database
                                 if(dataSnapshot.hasChild(convertedEmail)) {
 
+                                    //Get User object from database
                                     UserItem user = dataSnapshot.child(convertedEmail).getValue(UserItem.class);
 
                                     Log.d("Userthingy", user.get_email());
 
-                                    //Todo: Then insert user as a contact in your contacs and also insert
-
-
-
-
                                     String myEmail = "pede_ring@hotmail.com";
+
+                                    //String myEmail = emailView.getText().toString();
                                     String myConvertedEmail = EmailNameHelper.ConvertEmail(myEmail);
+                                    String usersConvertedEmail = EmailNameHelper.ConvertEmail(user.get_email());
 
                                     Contact myContact = new Contact(user.get_email(), myConvertedEmail + "_" + EmailNameHelper.ConvertEmail(user.get_email()));
+                                    Contact usersContact = new Contact(myEmail,  myConvertedEmail + "_" + EmailNameHelper.ConvertEmail(user.get_email()));
 
-                                    mDatabase.child("Users").child(myConvertedEmail).child("_contacs").child(EmailNameHelper.ConvertEmail(user.get_email())).setValue(myContact);
+                                    //Updating your own contact list
+                                    mDatabase.child("Users").child(myConvertedEmail).child("_contacts").child(EmailNameHelper.ConvertEmail(user.get_email())).setValue(myContact);
+
+                                    //Updating the user you want to add' contactlist
+                                    mDatabase.child("Users").child(usersConvertedEmail).child("_contacts").child(myConvertedEmail).setValue(usersContact);
+
                                 }
 
                             }
@@ -195,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
 
                 AlertDialog dialog = builder.create();
-                // **               **
+
 
                 dialog.show();
             }
