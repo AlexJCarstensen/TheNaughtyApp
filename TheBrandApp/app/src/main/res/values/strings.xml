@@ -4,7 +4,7 @@
     <string name="contacts_string">Contacts</string>
     <string name="Email">Email</string>
     <string name="CreateAccount">No account yet? Create one</string>
-    <string name="emailHint" translatable="false">Johndoe@gmail.com</string>
+    <string name="emailHint" translatable="false">johndoe@gmail.com</string>
     <string name="passwordHint">Password</string>
     <string name="LoginBtn">Login</string>
     <string name="signupNameValue">Username</string>
@@ -16,4 +16,7 @@
     <string name="txtStatus" translatable="false">Status</string>
     <string name="txtCurrentWeather">Current weather:</string>
     <string name="this_device_do_not_sup_crop">This device doesn\'t support the crop action!</string>
+    <string name="txtAddContact">Add contact</string>
+    <string name="txtAddContactToList">Add a contact to contact list by e-mail</string>
+    <string name="txtEmailHint2">friend@gmail.com</string>
 </resources>
