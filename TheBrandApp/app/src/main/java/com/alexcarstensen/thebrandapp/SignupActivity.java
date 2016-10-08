@@ -236,7 +236,7 @@ public class SignupActivity extends AppCompatActivity
     private void WriteNewUserToDatabase(UserItem user)
     {
         //Creating new entry in database with the name of the email
-        mDatabase.child("Users").child( EmailNameHelper.ConvertEmail(user.get_email())).setValue(user);
+        mDatabase.child("Users").child( EmailNameHelper.ConvertEmail(user.get_email()).toLowerCase()).setValue(user);
     }
 
 
