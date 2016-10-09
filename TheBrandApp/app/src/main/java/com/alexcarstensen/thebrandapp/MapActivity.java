@@ -2,6 +2,8 @@ package com.alexcarstensen.thebrandapp;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -19,10 +21,15 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
-public class MapActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MapActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
+{
 
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
@@ -81,8 +88,32 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     .build();
         }
     }
+
     private void setPictureMarkersOnMap()
     {
+        // TODO DEBUGGING ATM.. NEED REMAKE WHEN FIREBASE IS DONE
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageReference = storage.getReferenceFromUrl(getResources().getString(R.string.storageURL));
+        StorageReference storageRefImage = storageReference.child("mountains.jpeg");
+        final long ONE_MEGABYTE = 4096 * 4096; // Der skal diskuteres om hvordan billeder gemmes
+        storageRefImage.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>()
+        {
+            @Override
+            public void onSuccess(byte[] bytes)
+            {
+                Bitmap bitmap = resize(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                LatLng example = new LatLng(56.164861, 10.196456);
+                mMap.addMarker(new MarkerOptions()
+                        .position(example).title("picture")
+                        .icon(BitmapDescriptorFactory.fromBitmap(bitmap)));
+            }
+        });
+
+    }
+
+    private Bitmap resize(Bitmap image)
+    {
+        return Bitmap.createScaledBitmap(image, 50, 50, false);
     }
 
     /**
