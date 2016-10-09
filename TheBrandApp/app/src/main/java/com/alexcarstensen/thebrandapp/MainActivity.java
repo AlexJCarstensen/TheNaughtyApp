@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.alexcarstensen.thebrandapp.Helpers.EmailNameHelper;
 import com.google.android.gms.vision.barcode.Barcode;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
     private FloatingActionButton _addFab;
 
     ArrayList<UserItem> userItemList = new ArrayList<UserItem>();
+    ArrayList<Contact> contactList = new ArrayList<>();
 
     public static final String SEND_USER_CHAT_INFO = "send_user_chat_info";
     public static final String SEND_CONTACT_CHAT_INFO = "send_contact_chat_info";
@@ -96,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
 
         // Start "map activity" on click
+
         _mapFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -238,11 +241,74 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
     private void setUserContacts(){
         // Todo: Få fat i contact listen fra databasen
         // ** For debugging **
+
+        ValueEventListener startUpContactListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                Log.d("Contacs", "Getting contacts");
+
+                for (DataSnapshot contactSnapshot: dataSnapshot.getChildren()
+                     )
+                {
+                    Contact contact = contactSnapshot.getValue(Contact.class);
+                    contactList.add(contact);
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+
+        //Attach singlevalueListener to users contacts TODO: change to users real email
+        mDatabase.child(getResources().getString(R.string.users)).child("pede_ring@hotmail;_dot_;com").child("_contacts").addListenerForSingleValueEvent(startUpContactListener);
+        //                                                                    TODO: ^here^
+
+
+        ValueEventListener userSingleListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                Log.d("Users", "Getting Users");
+
+                for (DataSnapshot userSnapshot : dataSnapshot.getChildren())
+                {
+                    for (Contact contact: contactList)
+                    {
+                        if( userSnapshot.getValue(UserItem.class).get_email().equals(contact.getEmail()))
+                        {
+                            userItemList.add(userSnapshot.getValue(UserItem.class));
+                        }
+                    }
+
+                }
+
+                //Update the UI with new contacts/usersItems
+                _fragmentContactList.setUserItemList(userItemList);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+
+        //Attach singleValue listener for users to iterate throught and find the right ones
+        mDatabase.child(getResources().getString(R.string.users)).addListenerForSingleValueEvent(userSingleListener);
+
+
+        /*
         for(int i = 0; i < 100; i++){
             userItemList.add(new UserItem("User#"+i,"dummy_email"));
         }
         //**                **
-        _fragmentContactList.setUserItemList(userItemList);
+
+        */
+
 
     }
 

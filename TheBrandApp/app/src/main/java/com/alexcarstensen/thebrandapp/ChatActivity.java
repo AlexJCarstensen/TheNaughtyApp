@@ -86,9 +86,9 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
             for (int i = 0; i < 3; i++) {
 
                 if (i % 2 == 1) {
-                    messageItemList.add(new MessageItem(mainUserName, contactName, "Hi#" + i, "dummy_timestamp", 0));
+                    messageItemList.add(new MessageItem(mainUserName, contactName, "Hi#" + i, "dummy_timestamp", false));
                 } else {
-                    messageItemList.add(new MessageItem(contactName, mainUserName, "Hi#" + i, "dummy_timestamp", 0));
+                    messageItemList.add(new MessageItem(contactName, mainUserName, "Hi#" + i, "dummy_timestamp", false));
                 }
             }
             // **               **
@@ -158,16 +158,16 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
     private MessageItem setNewChatMessage(String chatMessage){
         //Todo: Updater databasen
-        MessageItem message = new MessageItem(mainUserName, contactName, chatMessage, "dummy_timestamp", 0);
+        MessageItem message = new MessageItem(mainUserName, contactName, chatMessage, "dummy_timestamp", false);
 
         return message;
     }
 
     private MessageItem setNewChatPicture(Bitmap chatPicture, String timestamp, String pictureUrl, String latitude, String longitude){
         //Todo: Do something with this picture message
-        MessageItem pictureMessage = new MessageItem(mainUserName, contactName, "Empty Message", "dummy_timestamp", 0);
+        MessageItem pictureMessage = new MessageItem(mainUserName, contactName, "Empty Message", "dummy_timestamp", false);
 
-        pictureMessage.set_hasImage(1); // Should be a bool
+        pictureMessage.set_hasImage(false); // Should be a bool
         pictureMessage.set_imageUrl(pictureUrl);
         pictureMessage.set_imageBitmap(chatPicture);
         pictureMessage.set_latitude(latitude);

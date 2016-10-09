@@ -65,7 +65,7 @@ public class ChatMessageListFragment extends Fragment{
                 chatActivityCallback.hideSoftKeyboard(getActivity());
 
                 MessageItem clickCheckMessageItem = MessageItemList.get(position);
-                if(clickCheckMessageItem.get_hasImage() == 1){
+                if(clickCheckMessageItem.get_hasImage() == false){
                     Toast.makeText(getActivity().getApplicationContext(),"CLICK", Toast.LENGTH_SHORT).show();
                     chatActivityCallback.startNavigation(clickCheckMessageItem);
                     // Todo: Lav eventuel alertdialog her?
