@@ -24,6 +24,7 @@ public class UserItem implements Parcelable{
 
     private String userName;
     private String email;
+    private boolean isAdded;
     private ArrayList<Contact> _contacts;
 
     public UserItem(){};
@@ -89,5 +90,13 @@ public class UserItem implements Parcelable{
         dest.writeString(userName);
         dest.writeString(email);
 
+    }
+
+    public boolean isAdded() {
+        return isAdded;
+    }
+
+    public void setAdded(boolean added) {
+        isAdded = added;
     }
 }
