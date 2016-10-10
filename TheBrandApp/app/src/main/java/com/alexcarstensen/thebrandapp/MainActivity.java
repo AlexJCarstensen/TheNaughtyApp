@@ -275,16 +275,11 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
                 Log.d("Users", "Getting Users");
 
-                for (DataSnapshot userSnapshot : dataSnapshot.getChildren())
-                {
-                    for (Contact contact: contactList)
-                    {
-                        if( userSnapshot.getValue(UserItem.class).get_email().equals(contact.getEmail()))
-                        {
-                            userItemList.add(userSnapshot.getValue(UserItem.class));
-                        }
-                    }
-
+                for (Contact contact: contactList
+                     ) {
+                    // add each contact to user list
+                    UserItem user = dataSnapshot.child(EmailNameHelper.ConvertEmail(contact.getEmail())).getValue(UserItem.class);
+                    userItemList.add(user);
                 }
 
                 //Update the UI with new contacts/usersItems
