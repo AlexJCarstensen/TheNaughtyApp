@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
     final static String STATE_CONTACT_ARRAY = "ContactArray";
     final static String STATE_MAIN_USER = "MainUser";
 
+
     private UserItem _mainUserItem;
     private FragmentManager _fm;
     private MainContactBarFragment _fragmentContactBar;
@@ -37,10 +38,10 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
     ArrayList<UserItem> userItemList = new ArrayList<UserItem>();
     ArrayList<Contact> contactList = new ArrayList<>();
 
-    public static final String SEND_USER_CHAT_INFO = "send_user_chat_info";
+    public static final String SEND_MAINUSER_CHAT_INFO = "send_user_chat_info";
     public static final String SEND_CONTACT_CHAT_INFO = "send_contact_chat_info";
-
-
+    public static final String SEND_CONTACT_USERNAME_INFO = "send_contact_username_info";
+    public static final String SEND_MAINUSER_USERNAME_INFO = "send_mainuser_username_info";
     //Firebase
     private DatabaseReference mDatabase;
 
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
         Intent getIntent = getIntent();
         String email = getIntent.getStringExtra(LoginActivity.SEND_EMAIL);
-        _mainUserItem = new UserItem(email, "GET USERNAME TO PUT HERE");
+        _mainUserItem = new UserItem("GET USERNAME TO PUT HERE", email);
         SetupFirebase();
 
         _fm = getSupportFragmentManager();
@@ -83,10 +84,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 //                }
 //            }
 
-            // Todo: Sæt main user up fra login - Brug evt. bundle med dette i?
-            // ** For debugging **
-            _mainUserItem = new UserItem("Jeppe","dummy_email");
-            // **               **
+
         }
 
 
@@ -222,8 +220,10 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
             // REF: http://www.androidtracks.com/android/how-to-pass-a-data-from-one-activity-to-another-in-android.html
             Intent chatIntent = new Intent(MainActivity.this, ChatActivity.class);
             Bundle userChatInfoBundle = new Bundle();
-            userChatInfoBundle.putString(SEND_USER_CHAT_INFO, _mainUserItem.get_userName());
-            userChatInfoBundle.putString(SEND_CONTACT_CHAT_INFO, tempUserItem.get_userName());
+            userChatInfoBundle.putString(SEND_MAINUSER_CHAT_INFO, _mainUserItem.get_email());
+            userChatInfoBundle.putString(SEND_CONTACT_CHAT_INFO, tempUserItem.get_email());
+            userChatInfoBundle.putString(SEND_MAINUSER_USERNAME_INFO, _mainUserItem.get_userName());
+            userChatInfoBundle.putString(SEND_CONTACT_USERNAME_INFO, tempUserItem.get_userName());
             chatIntent.putExtras(userChatInfoBundle);
             startActivity(chatIntent);
         }
@@ -257,8 +257,10 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
             }
         };
 
+        String userPoint = EmailNameHelper.ConvertEmail(_mainUserItem.get_email());
+
         //Attach singlevalueListener to users contacts TODO: change to users real email
-        mDatabase.child(getResources().getString(R.string.users)).child("pede_ring@hotmail;_dot_;com").child("_contacts").addListenerForSingleValueEvent(startUpContactListener);
+        mDatabase.child(getResources().getString(R.string.users)).child(userPoint).child("_contacts").addListenerForSingleValueEvent(startUpContactListener);
         //                                                                    TODO: ^here^
 
 

@@ -23,12 +23,16 @@ public class ChatListAdaptor extends BaseAdapter {
     private MessageItem _MessageItemObj;
     private String _mainUserName;
     private String _contactName;
+    private String _mainUserEmail;
+    private String _contactEmail;
 
-    public ChatListAdaptor(Context c, ArrayList<MessageItem> MessageItemList, String mainUserName, String contactName){
+    public ChatListAdaptor(Context c, ArrayList<MessageItem> MessageItemList, String mainUserName, String mainUserEmail, String contactName, String contactEmail){
         this._context = c;
         this._MessageItems = MessageItemList;
         this._mainUserName = mainUserName;
+        this._mainUserEmail = mainUserEmail;
         this._contactName = contactName;
+        this._contactEmail = contactEmail;
     }
 
     @Override
@@ -66,23 +70,23 @@ public class ChatListAdaptor extends BaseAdapter {
             if(_MessageItemObj.get_hasImage() == false) {
 
                 // Check sender/receiver inflate proper textView
-                if (_MessageItemObj.get_sender().equals(_mainUserName)) {
+                if (_MessageItemObj.get_sender().equals(_mainUserEmail)) {
 
                     LayoutInflater demoInflater = (LayoutInflater) this._context
                             .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     convertView = demoInflater.inflate(R.layout.list_message_left_item, null);
-                } else if (_MessageItemObj.get_sender().equals(_contactName)) {
+                } else if (_MessageItemObj.get_sender().equals(_contactEmail)) {
                     LayoutInflater demoInflater = (LayoutInflater) this._context
                             .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     convertView = demoInflater.inflate(R.layout.list_message_right_item, null);
                 }
 
                 // Check sender/receiver set text in textView
-                if (_MessageItemObj.get_sender().equals(_mainUserName)) {
+                if (_MessageItemObj.get_sender().equals(_mainUserEmail)) {
 
                     TextView txtMessageLeft = (TextView) convertView.findViewById(R.id.textViewMessageLeft);
                     txtMessageLeft.setText(_MessageItemObj.get_message());
-                } else if (_MessageItemObj.get_sender().equals(_contactName)) {
+                } else if (_MessageItemObj.get_sender().equals(_contactEmail)) {
                     TextView txtMessageRight = (TextView) convertView.findViewById(R.id.textViewMessageRight);
                     txtMessageRight.setText(_MessageItemObj.get_message());
                 }
@@ -90,21 +94,21 @@ public class ChatListAdaptor extends BaseAdapter {
             else if(_MessageItemObj.get_hasImage()==true){
 
                 // Check sender/receiver inflate proper imageView
-                if (_MessageItemObj.get_sender().equals(_mainUserName)) {
+                if (_MessageItemObj.get_sender().equals(_mainUserEmail)) {
                     LayoutInflater demoInflater = (LayoutInflater) this._context
                             .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     convertView = demoInflater.inflate(R.layout.list_picture_message_left_item, null);
-                } else if (_MessageItemObj.get_sender().equals(_contactName)) {
+                } else if (_MessageItemObj.get_sender().equals(_contactEmail)) {
                     LayoutInflater demoInflater = (LayoutInflater) this._context
                             .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     convertView = demoInflater.inflate(R.layout.list_picture_message_right_item, null);
                 }
 
                 // Check sender/receiver set bitmap in imageView
-                if (_MessageItemObj.get_sender().equals(_mainUserName)) {
+                if (_MessageItemObj.get_sender().equals(_mainUserEmail)) {
                     ImageView imgViewMessageLeft = (ImageView) convertView.findViewById(R.id.imageViewMessageLeft);
                     imgViewMessageLeft.setImageBitmap(_MessageItemObj.get_imageBitmap());
-                } else if (_MessageItemObj.get_sender().equals(_contactName)) {
+                } else if (_MessageItemObj.get_sender().equals(_contactEmail)) {
                     ImageView imgViewMessageRight = (ImageView) convertView.findViewById(R.id.imageViewMessageRight);
                     imgViewMessageRight.setImageBitmap(_MessageItemObj.get_imageBitmap());
                 }
