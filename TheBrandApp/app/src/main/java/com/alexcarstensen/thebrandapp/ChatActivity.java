@@ -16,6 +16,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -35,14 +36,20 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
 import com.alexcarstensen.thebrandapp.Helpers.EmailNameHelper;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -343,8 +350,45 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
 
                     messageItemList.add(setNewChatPicture(picThmp,time.toString(),"dummy_pictureUrl",String.valueOf(mLastLocation.getLatitude()),String.valueOf(mLastLocation.getLongitude())));
+
+                    FirebaseStorage storage = FirebaseStorage.getInstance();
+                    StorageReference storageRef = storage.getReference(getResources().getString(R.string.storageURL));
+
+                    final Long currentMili = System.currentTimeMillis();
+
+                    String userRef = mainUserEmail + "/" + currentMili.toString();
+
+                    StorageReference imageRef = storageRef.child(userRef);
+
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                    picThmp.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+
+                    byte[] byteData = baos.toByteArray();
+
+                    UploadTask uploadTask = imageRef.putBytes(byteData);
+
+                    uploadTask.addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Uri downloadUrl = taskSnapshot.getDownloadUrl();
+
+                            mDatabase.child("Pictures").child(EmailNameHelper.ConvertEmail(mainUserName)).child(currentMili.toString()).setValue(downloadUrl.toString());
+                        }
+                    });
+
+
+
+                    messageItemList.add(setNewChatPicture(picThmp,"dummy_timestamp","dummy_pictureUrl","dummy_lat","dummy_lon"));
                     _fragmentMessageList.setMessageItemList(messageItemList);
                     //Todo: Hent timestamp, GPS coords og sæt billede ind i data base
+
+
 
                 }
             } break;
