@@ -41,6 +41,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -160,8 +161,6 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
         _imageButtonCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Todo: Der skal måske laves noget med camera permissions til API23 og over
-                //dispatchTakePictureIntent();
                 handleCameraPermissions();
             }
         });
@@ -274,14 +273,15 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
     private MessageItem setNewChatMessage(String chatMessage){
         //Todo: Updater databasen
-        MessageItem message = new MessageItem(mainUserEmail, contactEmail, chatMessage, "dummy_timestamp", false);
+        java.util.Date time = new java.util.Date();
+
+        MessageItem message = new MessageItem(mainUserEmail, contactEmail, chatMessage, time.toString(), 0);
 
         return message;
     }
 
     private MessageItem setNewChatPicture(Bitmap chatPicture, String timestamp, String pictureUrl, String latitude, String longitude){
-        //Todo: Do something with this picture message
-        MessageItem pictureMessage = new MessageItem(mainUserEmail, contactEmail, "Empty Message", "dummy_timestamp", false);
+        MessageItem pictureMessage = new MessageItem(mainUserEmail, contactEmail, "Empty Message", timestamp, 0);
 
         pictureMessage.set_hasImage(1); // Should be a bool
         pictureMessage.set_imageUrl(pictureUrl);
@@ -336,7 +336,13 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
                     picTaken = 1;
                     Bundle extras = data.getExtras();
                     picThmp = extras.getParcelable("data");
-                    messageItemList.add(setNewChatPicture(picThmp,"dummy_timestamp","dummy_pictureUrl","dummy_lat","dummy_lon"));
+
+
+
+                    java.util.Date time = new java.util.Date();
+
+
+                    messageItemList.add(setNewChatPicture(picThmp,time.toString(),"dummy_pictureUrl",String.valueOf(mLastLocation.getLatitude()),String.valueOf(mLastLocation.getLongitude())));
                     _fragmentMessageList.setMessageItemList(messageItemList);
                     //Todo: Hent timestamp, GPS coords og sæt billede ind i data base
 
@@ -355,7 +361,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
         }
     }
 
-    /*
+
     //TODO: **** Permissions for API23 an above?? ****
     // REF: https://developer.android.com/training/permissions/requesting.html
     @Override
@@ -368,7 +374,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
                     CheckPermissionIfGrantedGetLastKnowLocation();
                 } else {
                     // Permission Denied
-                    Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT)
+                    Toast.makeText(getApplicationContext(), R.string.txtPermissionDenied, Toast.LENGTH_SHORT)
                             .show();
                 }
                 break;
@@ -379,7 +385,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
                     mGoogleApiClient.connect();
                 } else {
                     // Permission Denied
-                    Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT)
+                    Toast.makeText(getApplicationContext(), R.string.txtPermissionDenied, Toast.LENGTH_SHORT)
                             .show();
                 }
                 break;
@@ -390,7 +396,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
                     mGoogleApiClient.connect();
                 } else {
                     // Permission Denied
-                    Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT)
+                    Toast.makeText(getApplicationContext(), R.string.txtPermissionDenied, Toast.LENGTH_SHORT)
                             .show();
                 }
                 break;
