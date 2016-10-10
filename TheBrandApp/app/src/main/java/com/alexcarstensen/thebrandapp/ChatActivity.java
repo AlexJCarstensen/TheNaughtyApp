@@ -19,8 +19,13 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alexcarstensen.thebrandapp.Helpers.EmailNameHelper;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -90,6 +95,9 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
         }
         else{
             // Todo: Hent chatten fra data basen der passer til main user og contact relationen
+            GetChatName();
+
+            /*
             // ** For debugging **
             for (int i = 0; i < 3; i++) {
 
@@ -101,8 +109,13 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
             }
             // **               **
 
+
+
             // Set chat list
             _fragmentMessageList.setMessageItemList(messageItemList);
+
+            */
+
         }
 
 
@@ -164,8 +177,72 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
     }
 
-    private void SetupChatListener()
+    private void GetChatName()
     {
+        String userConvertedEmail = EmailNameHelper.ConvertEmail(mainUserEmail);
+        String contactConvertedEmail = EmailNameHelper.ConvertEmail(contactEmail);
+
+        ValueEventListener chatNameListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                Contact contact = dataSnapshot.getValue(Contact.class);
+
+                String chatName = contact.getChat();
+
+                SetupChatListener(chatName);
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+
+        mDatabase.child(getResources().getString(R.string.users)).child(userConvertedEmail).child("_contacts").child(contactConvertedEmail).addListenerForSingleValueEvent(chatNameListener);
+
+
+    }
+
+    private void SetupChatListener(String chatName)
+    {
+
+        ChildEventListener chatListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                MessageItem newMessage = dataSnapshot.getValue(MessageItem.class);
+
+                messageItemList.add(newMessage);
+
+                updateChatListOnEvent();
+
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+
+        mDatabase.child("Chats").child(chatName).addChildEventListener(chatListener);
 
     }
 
@@ -173,7 +250,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
     private void updateChatListOnEvent(){
         //Todo: Opdater chatten ved event.
 //        messageItemList = database??
-//        _fragmentMessageList.setMessageItemList(messageItemList);
+        _fragmentMessageList.setMessageItemList(messageItemList);
 
     }
 
