@@ -345,12 +345,6 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
                     picThmp = extras.getParcelable("data");
 
 
-
-                    java.util.Date time = new java.util.Date();
-
-
-                    messageItemList.add(setNewChatPicture(picThmp,time.toString(),"dummy_pictureUrl",String.valueOf(mLastLocation.getLatitude()),String.valueOf(mLastLocation.getLongitude())));
-
                     FirebaseStorage storage = FirebaseStorage.getInstance();
                     StorageReference storageRef = storage.getReference(getResources().getString(R.string.storageURL));
 
@@ -382,13 +376,13 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
                         }
                     });
 
+                    java.util.Date time = new java.util.Date();
 
 
-                    messageItemList.add(setNewChatPicture(picThmp,"dummy_timestamp","dummy_pictureUrl","dummy_lat","dummy_lon"));
+                    messageItemList.add(setNewChatPicture(picThmp,time.toString(),"dummy_pictureUrl",String.valueOf(mLastLocation.getLatitude()),String.valueOf(mLastLocation.getLongitude())));
                     _fragmentMessageList.setMessageItemList(messageItemList);
                     //Todo: Hent timestamp, GPS coords og sæt billede ind i data base
-
-
+                    
 
                 }
             } break;
