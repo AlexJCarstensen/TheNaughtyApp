@@ -19,6 +19,7 @@
     <string name="txtAddContact">Add contact</string>
     <string name="txtAddContactToList">Add a contact to contact list by e-mail</string>
     <string name="txtEmailHint2">friend@gmail.com</string>
+    <string name="txtPermission">"You need to allow camera and location access"</string>
 
     //FIrebase
     <string name="storageURL">gs://the-brand-app.appspot.com</string>

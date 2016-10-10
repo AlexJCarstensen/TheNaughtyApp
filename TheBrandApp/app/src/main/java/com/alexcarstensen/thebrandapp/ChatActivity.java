@@ -1,5 +1,7 @@
 package com.alexcarstensen.thebrandapp;
 
+import android.*;
+import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
@@ -7,9 +9,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
@@ -25,19 +30,24 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+
 import java.io.File;
 import java.util.ArrayList;
 
 // REF: Made from ArniesFragmentsMovie example
-public class ChatActivity extends AppCompatActivity implements ChatMessageListFragment.OnChatSelectedListener{
+public class ChatActivity extends AppCompatActivity implements ChatMessageListFragment.OnChatSelectedListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
 
     final static String STATE_CHAT_MESSAGE_ARRAY = "ChatMessageArray";
 
     private static final int REQUEST_IMAGE_CAPTURE = 100;
     private static final int REQUEST_CROP_IMAGE = 101;
     private static final int REQUEST_PERMISSIONS_CAMERA = 102;
-    private static final int PIC_CROP = 103;
-    private static final int REQUEST_IMAGE_MAP = 104;
+    private static final int REQUEST_PERMISSIONS_FINE_LOCATION = 103;
+    private static final int REQUEST_PERMISSIONS_COARSE_LOCATION = 104;
+    private static final int REQUEST_IMAGE_MAP = 105;
 
 
     private FragmentManager _fm;
@@ -48,6 +58,8 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
     private Uri picUri;
     private Bitmap picThmp;
     private int picTaken = 0;
+    private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation;
 
     ArrayList<MessageItem> messageItemList = new ArrayList<MessageItem>();
 
@@ -86,9 +98,9 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
             for (int i = 0; i < 3; i++) {
 
                 if (i % 2 == 1) {
-                    messageItemList.add(new MessageItem(mainUserName, contactName, "Hi#" + i, "dummy_timestamp", false));
+                    messageItemList.add(new MessageItem(mainUserName, contactName, "Hi#" + i, "dummy_timestamp", 0));
                 } else {
-                    messageItemList.add(new MessageItem(contactName, mainUserName, "Hi#" + i, "dummy_timestamp", false));
+                    messageItemList.add(new MessageItem(contactName, mainUserName, "Hi#" + i, "dummy_timestamp", 0));
                 }
             }
             // **               **
@@ -122,8 +134,8 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
             @Override
             public void onClick(View v) {
                 //Todo: Der skal måske laves noget med camera permissions til API23 og over
-                dispatchTakePictureIntent();
-                //handleCameraPermissions();
+                //dispatchTakePictureIntent();
+                handleCameraPermissions();
             }
         });
 
@@ -158,16 +170,16 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
     private MessageItem setNewChatMessage(String chatMessage){
         //Todo: Updater databasen
-        MessageItem message = new MessageItem(mainUserName, contactName, chatMessage, "dummy_timestamp", false);
+        MessageItem message = new MessageItem(mainUserName, contactName, chatMessage, "dummy_timestamp", 0);
 
         return message;
     }
 
     private MessageItem setNewChatPicture(Bitmap chatPicture, String timestamp, String pictureUrl, String latitude, String longitude){
         //Todo: Do something with this picture message
-        MessageItem pictureMessage = new MessageItem(mainUserName, contactName, "Empty Message", "dummy_timestamp", false);
+        MessageItem pictureMessage = new MessageItem(mainUserName, contactName, "Empty Message", "dummy_timestamp", 1);
 
-        pictureMessage.set_hasImage(false); // Should be a bool
+        pictureMessage.set_hasImage(1); // Should be a bool
         pictureMessage.set_imageUrl(pictureUrl);
         pictureMessage.set_imageBitmap(chatPicture);
         pictureMessage.set_latitude(latitude);
@@ -237,7 +249,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
         }
     }
 
-    /*
+
     //TODO: **** Permissions for API23 an above?? ****
     // REF: https://developer.android.com/training/permissions/requesting.html
     @Override
@@ -247,6 +259,29 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission OK
                     dispatchTakePictureIntent();
+                    CheckPermissionIfGrantedGetLastKnowLocation();
+                } else {
+                    // Permission Denied
+                    Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT)
+                            .show();
+                }
+                break;
+            case REQUEST_PERMISSIONS_FINE_LOCATION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission OK
+                    buildGoogleApiClient();
+                    mGoogleApiClient.connect();
+                } else {
+                    // Permission Denied
+                    Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT)
+                            .show();
+                }
+                break;
+            case REQUEST_PERMISSIONS_COARSE_LOCATION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission OK
+                    buildGoogleApiClient();
+                    mGoogleApiClient.connect();
                 } else {
                     // Permission Denied
                     Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT)
@@ -256,38 +291,33 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
+
     }
 
     private void handleCameraPermissions() {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            if (!shouldShowRequestPermissionRationale(android.Manifest.permission.CAMERA)) {
-                showAlertOkCancel(getResources().getString("You need to allow camera access"),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                requestPermissions(new String[]{android.Manifest.permission.CAMERA},
-                                        REQUEST_PERMISSIONS_CAMERA);
-                            }
-                        });
-                return;
+        if (ContextCompat.checkSelfPermission(ChatActivity.this, android.Manifest.permission.CAMERA)!= PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(ChatActivity.this,android.Manifest.permission.CAMERA)) {
+
+                Toast.makeText(getApplication().getApplicationContext(),R.string.txtPermission, Toast.LENGTH_SHORT).show();
             }
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA},
-                    REQUEST_PERMISSIONS_CAMERA);
-            return;
+            else{
+                ActivityCompat.requestPermissions(ChatActivity.this, new String[]{android.Manifest.permission.CAMERA}, REQUEST_PERMISSIONS_CAMERA);
+
+                //dispatchTakePictureIntent();
+            }
         }
-        dispatchTakePictureIntent();
+        else{
+
+
+            buildGoogleApiClient();
+            mGoogleApiClient.connect();
+            dispatchTakePictureIntent();
+
+        }
+
     }
 
-    // REF: http://stackoverflow.com/questions/15020878/i-want-to-show-ok-and-cancel-button-in-my-alert-dialog
-    private void showAlertOkCancel(String message, DialogInterface.OnClickListener okListener) {
-        new AlertDialog.Builder(getApplicationContext())
-                .setMessage(message)
-                .setPositiveButton("Ok", okListener)
-                .setNegativeButton("Cancel", null)
-                .create()
-                .show();
-    }
-    */
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -321,7 +351,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
             // retrieve data on return
             cropIntent.putExtra("return-data", true);
             // start the activity - we handle returning in onActivityResult
-            startActivityForResult(cropIntent, PIC_CROP);
+            startActivityForResult(cropIntent, REQUEST_CROP_IMAGE);
         }
         // respond to users whose devices do not support the crop action
         catch (ActivityNotFoundException anfe) {
@@ -330,6 +360,57 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
             toast.show();
         }
     }
+
+
+    private void CheckPermissionIfGrantedGetLastKnowLocation()
+    {
+        if (ActivityCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            ActivityCompat.requestPermissions(ChatActivity.this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_PERMISSIONS_FINE_LOCATION);
+        }
+        else
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+    }
+
+    private void buildGoogleApiClient()
+    {
+        if (mGoogleApiClient == null)
+        {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        CheckPermissionIfGrantedGetLastKnowLocation();
+    }
+
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    protected void onStop()
+    {
+        if(mGoogleApiClient != null){
+            mGoogleApiClient.disconnect();
+        }
+        super.onStop();
+    }
+
 }
 
 

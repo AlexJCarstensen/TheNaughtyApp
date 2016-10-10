@@ -15,7 +15,7 @@ public class MessageItem implements Parcelable {
     private String _receiver;
     private String _message;
     private String _timestamp;
-    private boolean _hasImage;
+    private int _hasImage;
     private String _imageUrl;
     private Bitmap _imageBitmap;
     private String _latitude;
@@ -25,7 +25,7 @@ public class MessageItem implements Parcelable {
 
     public MessageItem(){};
 
-    public MessageItem( String sender, String _receiver, String message, String timestamp, boolean hasImage){
+    public MessageItem( String sender, String _receiver, String message, String timestamp, int hasImage){
         this._sender = sender;
         this._receiver = _receiver;
         this._message = message;
@@ -38,7 +38,7 @@ public class MessageItem implements Parcelable {
         _receiver = in.readString();
         _message = in.readString();
         _timestamp = in.readString();
-        _hasImage = in.readParcelable(null);
+        _hasImage = in.readInt();
         _imageUrl = in.readString();
         _imageBitmap = in.readParcelable(null); //REF: http://stackoverflow.com/questions/13417163/parcel-bitmap-android
         _latitude = in.readString();
@@ -81,8 +81,8 @@ public class MessageItem implements Parcelable {
         this._timestamp = timestamp;
     }
 
-    public boolean get_hasImage() {return _hasImage;}
-    public void set_hasImage(boolean hasImage) {
+    public int get_hasImage() {return _hasImage;}
+    public void set_hasImage(int hasImage) {
         this._hasImage = hasImage;
     }
 
@@ -115,7 +115,7 @@ public class MessageItem implements Parcelable {
         dest.writeString(_timestamp);
 
         //Todo: check this.... and do something
-        //dest.writeParcelable(_hasImage);
+        dest.writeInt(_hasImage);
         dest.writeString(_imageUrl);
         dest.writeParcelable(_imageBitmap,flags); // REF: http://stackoverflow.com/questions/13417163/parcel-bitmap-android
         dest.writeString(_latitude);
