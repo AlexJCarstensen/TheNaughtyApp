@@ -1,13 +1,25 @@
 package com.alexcarstensen.thebrandapp;
 
+import android.*;
+import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -19,27 +31,39 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+
 import com.alexcarstensen.thebrandapp.Helpers.EmailNameHelper;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.google.firebase.storage.StorageReference;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
 
 // REF: Made from ArniesFragmentsMovie example
-public class ChatActivity extends AppCompatActivity implements ChatMessageListFragment.OnChatSelectedListener{
+public class ChatActivity extends AppCompatActivity implements ChatMessageListFragment.OnChatSelectedListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
 
     final static String STATE_CHAT_MESSAGE_ARRAY = "ChatMessageArray";
 
     private static final int REQUEST_IMAGE_CAPTURE = 100;
     private static final int REQUEST_CROP_IMAGE = 101;
     private static final int REQUEST_PERMISSIONS_CAMERA = 102;
-    private static final int PIC_CROP = 103;
-    private static final int REQUEST_IMAGE_MAP = 104;
+    private static final int REQUEST_PERMISSIONS_FINE_LOCATION = 103;
+    private static final int REQUEST_PERMISSIONS_COARSE_LOCATION = 104;
+    private static final int REQUEST_IMAGE_MAP = 105;
 
 
     private FragmentManager _fm;
@@ -50,6 +74,8 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
     private Uri picUri;
     private Bitmap picThmp;
     private int picTaken = 0;
+    private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation;
 
     ArrayList<MessageItem> messageItemList = new ArrayList<MessageItem>();
 
@@ -142,9 +168,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
         _imageButtonCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Todo: Der skal måske laves noget med camera permissions til API23 og over
-                dispatchTakePictureIntent();
-                //handleCameraPermissions();
+                handleCameraPermissions();
             }
         });
 
@@ -256,16 +280,17 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
     private MessageItem setNewChatMessage(String chatMessage){
         //Todo: Updater databasen
-        MessageItem message = new MessageItem(mainUserEmail, contactEmail, chatMessage, "dummy_timestamp", false);
+        java.util.Date time = new java.util.Date();
+
+        MessageItem message = new MessageItem(mainUserEmail, contactEmail, chatMessage, time.toString(), 0);
 
         return message;
     }
 
     private MessageItem setNewChatPicture(Bitmap chatPicture, String timestamp, String pictureUrl, String latitude, String longitude){
-        //Todo: Do something with this picture message
-        MessageItem pictureMessage = new MessageItem(mainUserEmail, contactEmail, "Empty Message", "dummy_timestamp", false);
+        MessageItem pictureMessage = new MessageItem(mainUserEmail, contactEmail, "Empty Message", timestamp, 0);
 
-        pictureMessage.set_hasImage(false); // Should be a bool
+        pictureMessage.set_hasImage(1); // Should be a bool
         pictureMessage.set_imageUrl(pictureUrl);
         pictureMessage.set_imageBitmap(chatPicture);
         pictureMessage.set_latitude(latitude);
@@ -318,9 +343,46 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
                     picTaken = 1;
                     Bundle extras = data.getExtras();
                     picThmp = extras.getParcelable("data");
-                    messageItemList.add(setNewChatPicture(picThmp,"dummy_timestamp","dummy_pictureUrl","dummy_lat","dummy_lon"));
+
+
+                    FirebaseStorage storage = FirebaseStorage.getInstance();
+                    StorageReference storageRef = storage.getReference(getResources().getString(R.string.storageURL));
+
+                    final Long currentMili = System.currentTimeMillis();
+
+                    String userRef = mainUserEmail + "/" + currentMili.toString();
+
+                    StorageReference imageRef = storageRef.child(userRef);
+
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                    picThmp.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+
+                    byte[] byteData = baos.toByteArray();
+
+                    UploadTask uploadTask = imageRef.putBytes(byteData);
+
+                    uploadTask.addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Uri downloadUrl = taskSnapshot.getDownloadUrl();
+
+                            mDatabase.child("Pictures").child(EmailNameHelper.ConvertEmail(mainUserName)).child(currentMili.toString()).setValue(downloadUrl.toString());
+                        }
+                    });
+
+                    java.util.Date time = new java.util.Date();
+
+
+                    messageItemList.add(setNewChatPicture(picThmp,time.toString(),"dummy_pictureUrl",String.valueOf(mLastLocation.getLatitude()),String.valueOf(mLastLocation.getLongitude())));
                     _fragmentMessageList.setMessageItemList(messageItemList);
                     //Todo: Hent timestamp, GPS coords og sæt billede ind i data base
+                    
 
                 }
             } break;
@@ -337,7 +399,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
         }
     }
 
-    /*
+
     //TODO: **** Permissions for API23 an above?? ****
     // REF: https://developer.android.com/training/permissions/requesting.html
     @Override
@@ -347,47 +409,65 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission OK
                     dispatchTakePictureIntent();
+                    CheckPermissionIfGrantedGetLastKnowLocation();
                 } else {
                     // Permission Denied
-                    Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT)
+                    Toast.makeText(getApplicationContext(), R.string.txtPermissionDenied, Toast.LENGTH_SHORT)
+                            .show();
+                }
+                break;
+            case REQUEST_PERMISSIONS_FINE_LOCATION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission OK
+                    buildGoogleApiClient();
+                    mGoogleApiClient.connect();
+                } else {
+                    // Permission Denied
+                    Toast.makeText(getApplicationContext(), R.string.txtPermissionDenied, Toast.LENGTH_SHORT)
+                            .show();
+                }
+                break;
+            case REQUEST_PERMISSIONS_COARSE_LOCATION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission OK
+                    buildGoogleApiClient();
+                    mGoogleApiClient.connect();
+                } else {
+                    // Permission Denied
+                    Toast.makeText(getApplicationContext(), R.string.txtPermissionDenied, Toast.LENGTH_SHORT)
                             .show();
                 }
                 break;
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
+
     }
 
     private void handleCameraPermissions() {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            if (!shouldShowRequestPermissionRationale(android.Manifest.permission.CAMERA)) {
-                showAlertOkCancel(getResources().getString("You need to allow camera access"),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                requestPermissions(new String[]{android.Manifest.permission.CAMERA},
-                                        REQUEST_PERMISSIONS_CAMERA);
-                            }
-                        });
-                return;
+        if (ContextCompat.checkSelfPermission(ChatActivity.this, android.Manifest.permission.CAMERA)!= PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(ChatActivity.this,android.Manifest.permission.CAMERA)) {
+
+                Toast.makeText(getApplication().getApplicationContext(),R.string.txtPermission, Toast.LENGTH_SHORT).show();
             }
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA},
-                    REQUEST_PERMISSIONS_CAMERA);
-            return;
+            else{
+                ActivityCompat.requestPermissions(ChatActivity.this, new String[]{android.Manifest.permission.CAMERA}, REQUEST_PERMISSIONS_CAMERA);
+
+                //dispatchTakePictureIntent();
+            }
         }
-        dispatchTakePictureIntent();
+        else{
+
+
+            buildGoogleApiClient();
+            mGoogleApiClient.connect();
+            dispatchTakePictureIntent();
+
+        }
+
     }
 
-    // REF: http://stackoverflow.com/questions/15020878/i-want-to-show-ok-and-cancel-button-in-my-alert-dialog
-    private void showAlertOkCancel(String message, DialogInterface.OnClickListener okListener) {
-        new AlertDialog.Builder(getApplicationContext())
-                .setMessage(message)
-                .setPositiveButton("Ok", okListener)
-                .setNegativeButton("Cancel", null)
-                .create()
-                .show();
-    }
-    */
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -421,7 +501,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
             // retrieve data on return
             cropIntent.putExtra("return-data", true);
             // start the activity - we handle returning in onActivityResult
-            startActivityForResult(cropIntent, PIC_CROP);
+            startActivityForResult(cropIntent, REQUEST_CROP_IMAGE);
         }
         // respond to users whose devices do not support the crop action
         catch (ActivityNotFoundException anfe) {
@@ -430,6 +510,57 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
             toast.show();
         }
     }
+
+
+    private void CheckPermissionIfGrantedGetLastKnowLocation()
+    {
+        if (ActivityCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            ActivityCompat.requestPermissions(ChatActivity.this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_PERMISSIONS_FINE_LOCATION);
+        }
+        else
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+    }
+
+    private void buildGoogleApiClient()
+    {
+        if (mGoogleApiClient == null)
+        {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        CheckPermissionIfGrantedGetLastKnowLocation();
+    }
+
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    protected void onStop()
+    {
+        if(mGoogleApiClient != null){
+            mGoogleApiClient.disconnect();
+        }
+        super.onStop();
+    }
+
 }
 
 

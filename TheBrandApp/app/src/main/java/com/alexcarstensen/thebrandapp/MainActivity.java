@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
                                     //Creating chat in database
                                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-                                    mDatabase.child(getResources().getString(R.string.chats)).child(chat).child("First Message").setValue(new MessageItem(myEmail, user.get_email(), "Test", sdf.toString() , false));
+                                    mDatabase.child(getResources().getString(R.string.chats)).child(chat).child("First Message").setValue(new MessageItem(myEmail, user.get_email(), "Test", sdf.toString() , 0));
                                 }
 
                             }

@@ -67,7 +67,7 @@ public class ChatListAdaptor extends BaseAdapter {
         if(_MessageItemObj!=null){
 
             // Check if message has a picture
-            if(_MessageItemObj.get_hasImage() == false) {
+            if(_MessageItemObj.get_hasImage() == 0) {
 
                 // Check sender/receiver inflate proper textView
                 if (_MessageItemObj.get_sender().equals(_mainUserEmail)) {
@@ -91,7 +91,7 @@ public class ChatListAdaptor extends BaseAdapter {
                     txtMessageRight.setText(_MessageItemObj.get_message());
                 }
             }
-            else if(_MessageItemObj.get_hasImage()==true){
+            else if(_MessageItemObj.get_hasImage()==1){
 
                 // Check sender/receiver inflate proper imageView
                 if (_MessageItemObj.get_sender().equals(_mainUserEmail)) {
