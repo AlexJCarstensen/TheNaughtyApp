@@ -19,6 +19,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 // Implemented an interface between the MainContactListFragment and the MainActivity
@@ -100,6 +102,8 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
             }
         });
 
+
+
         // Start "add user activity"
         _addFab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -152,16 +156,22 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
                                     //String myEmail = emailView.getText().toString();
                                     String myConvertedEmail = EmailNameHelper.ConvertEmail(myEmail);
                                     String usersConvertedEmail = EmailNameHelper.ConvertEmail(user.get_email());
+                                    String chat = myConvertedEmail + "_" + EmailNameHelper.ConvertEmail(user.get_email());
 
-                                    Contact myContact = new Contact(user.get_email(), myConvertedEmail + "_" + EmailNameHelper.ConvertEmail(user.get_email()));
-                                    Contact usersContact = new Contact(myEmail,  myConvertedEmail + "_" + EmailNameHelper.ConvertEmail(user.get_email()));
+                                    Contact myContact = new Contact(user.get_email(), chat);
+                                    myContact.setAdded(true);
+                                    Contact usersContact = new Contact(myEmail, chat);
+                                    usersContact.setAdded(false);
 
                                     //Updating your own contact list
-                                    mDatabase.child("Users").child(myConvertedEmail).child("_contacts").child(EmailNameHelper.ConvertEmail(user.get_email())).setValue(myContact);
+                                    mDatabase.child(getResources().getString(R.string.users)).child(myConvertedEmail).child("_contacts").child(EmailNameHelper.ConvertEmail(user.get_email())).setValue(myContact);
 
                                     //Updating the user you want to add' contactlist
-                                    mDatabase.child("Users").child(usersConvertedEmail).child("_contacts").child(myConvertedEmail).setValue(usersContact);
+                                    mDatabase.child(getResources().getString(R.string.users)).child(usersConvertedEmail).child("_contacts").child(myConvertedEmail).setValue(usersContact);
 
+                                    //Creating chat in database
+                                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+                                    mDatabase.child(getResources().getString(R.string.chats)).child(chat).child("First Message").setValue(new MessageItem(myEmail, user.get_email(), "Test", sdf.toString() , false));
                                 }
 
                             }
@@ -201,6 +211,15 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
                 dialog.show();
             }
         });
+
+
+    }
+
+    private void temp_dialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+        builder.setTitle("Friend request");
+
 
 
     }

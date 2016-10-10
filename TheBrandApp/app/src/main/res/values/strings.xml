@@ -23,5 +23,6 @@
     //FIrebase
     <string name="storageURL">gs://the-brand-app.appspot.com</string>
     <string name="users">Users</string>
+    <string name="chats">Chats</string>
 
 </resources>
