@@ -34,6 +34,14 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
+import com.alexcarstensen.thebrandapp.Helpers.EmailNameHelper;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.io.File;
 import java.util.ArrayList;
 
@@ -66,10 +74,17 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
     public String mainUserName;
     public String contactName;
+    public String mainUserEmail;
+    public String contactEmail;
+
+    //Firebase
+    private DatabaseReference mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
 
         setContentView(R.layout.activity_chat);
 
@@ -83,8 +98,12 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
         // Get data passed by using Bundle, mainUser and contact
         Intent initIntent = getIntent();
         Bundle bundle = initIntent.getExtras();
-        mainUserName = bundle.getString(MainActivity.SEND_USER_CHAT_INFO);
-        contactName = bundle.getString(MainActivity.SEND_CONTACT_CHAT_INFO);
+        mainUserName = bundle.getString(MainActivity.SEND_MAINUSER_USERNAME_INFO);
+        contactName = bundle.getString(MainActivity.SEND_CONTACT_USERNAME_INFO);
+        mainUserEmail = bundle.getString(MainActivity.SEND_MAINUSER_CHAT_INFO);
+        contactEmail = bundle.getString(MainActivity.SEND_CONTACT_CHAT_INFO);
+
+        SetupFirebase();
 
         // Save chat message list
         if(savedInstanceState != null) {
@@ -94,19 +113,27 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
         }
         else{
             // Todo: Hent chatten fra data basen der passer til main user og contact relationen
+            GetChatName();
+
+            /*
             // ** For debugging **
             for (int i = 0; i < 3; i++) {
 
                 if (i % 2 == 1) {
-                    messageItemList.add(new MessageItem(mainUserName, contactName, "Hi#" + i, "dummy_timestamp", 0));
+                    messageItemList.add(new MessageItem(mainUserEmail, contactEmail, "Hi#" + i, "dummy_timestamp", false));
                 } else {
-                    messageItemList.add(new MessageItem(contactName, mainUserName, "Hi#" + i, "dummy_timestamp", 0));
+                    messageItemList.add(new MessageItem(contactEmail, mainUserEmail, "Hi#" + i, "dummy_timestamp", false));
                 }
             }
             // **               **
 
+
+
             // Set chat list
             _fragmentMessageList.setMessageItemList(messageItemList);
+
+            */
+
         }
 
 
@@ -161,23 +188,100 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
         // **               **
     }
 
+    private void SetupFirebase()
+    {
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+
+    }
+
+    private void GetChatName()
+    {
+        String userConvertedEmail = EmailNameHelper.ConvertEmail(mainUserEmail);
+        String contactConvertedEmail = EmailNameHelper.ConvertEmail(contactEmail);
+
+        ValueEventListener chatNameListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                Contact contact = dataSnapshot.getValue(Contact.class);
+
+                String chatName = contact.getChat();
+
+                SetupChatListener(chatName);
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+
+        mDatabase.child(getResources().getString(R.string.users)).child(userConvertedEmail).child("_contacts").child(contactConvertedEmail).addListenerForSingleValueEvent(chatNameListener);
+
+
+    }
+
+    private void SetupChatListener(String chatName)
+    {
+
+        ChildEventListener chatListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                MessageItem newMessage = dataSnapshot.getValue(MessageItem.class);
+
+                messageItemList.add(newMessage);
+
+                updateChatListOnEvent();
+
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+
+        mDatabase.child("Chats").child(chatName).addChildEventListener(chatListener);
+
+    }
+
+
     private void updateChatListOnEvent(){
         //Todo: Opdater chatten ved event.
 //        messageItemList = database??
-//        _fragmentMessageList.setMessageItemList(messageItemList);
+        _fragmentMessageList.setMessageItemList(messageItemList);
 
     }
 
     private MessageItem setNewChatMessage(String chatMessage){
         //Todo: Updater databasen
-        MessageItem message = new MessageItem(mainUserName, contactName, chatMessage, "dummy_timestamp", 0);
+        MessageItem message = new MessageItem(mainUserEmail, contactEmail, chatMessage, "dummy_timestamp", false);
 
         return message;
     }
 
     private MessageItem setNewChatPicture(Bitmap chatPicture, String timestamp, String pictureUrl, String latitude, String longitude){
         //Todo: Do something with this picture message
-        MessageItem pictureMessage = new MessageItem(mainUserName, contactName, "Empty Message", "dummy_timestamp", 1);
+        MessageItem pictureMessage = new MessageItem(mainUserEmail, contactEmail, "Empty Message", "dummy_timestamp", false);
 
         pictureMessage.set_hasImage(1); // Should be a bool
         pictureMessage.set_imageUrl(pictureUrl);
@@ -191,6 +295,8 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
     // Interface methods
     public String getMainUserName(){return mainUserName;}
     public String getContactName(){return contactName;}
+    public String getMainUserEmail(){return mainUserEmail;}
+    public String getContactEmail(){return contactEmail;}
 
     public void hideSoftKeyboard(Activity activity) {
         InputMethodManager inputMethodManager =
@@ -249,7 +355,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
         }
     }
 
-
+    /*
     //TODO: **** Permissions for API23 an above?? ****
     // REF: https://developer.android.com/training/permissions/requesting.html
     @Override

@@ -8,6 +8,7 @@ public class Contact {
 
     private String email;
     private String chat;
+    private boolean isAdded;
 
 public Contact()
 {
@@ -33,5 +34,13 @@ public Contact()
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public boolean isAdded() {
+        return isAdded;
+    }
+
+    public void setAdded(boolean added) {
+        isAdded = added;
     }
 }

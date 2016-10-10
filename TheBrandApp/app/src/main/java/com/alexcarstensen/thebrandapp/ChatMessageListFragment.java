@@ -86,7 +86,7 @@ public class ChatMessageListFragment extends Fragment{
 
         if (messageItemList_!=null){
             MessageItemList = messageItemList_;
-            listAdaptorObj = new ChatListAdaptor(view.getContext(), MessageItemList,chatActivityCallback.getMainUserName(),chatActivityCallback.getContactName());
+            listAdaptorObj = new ChatListAdaptor(view.getContext(), MessageItemList,chatActivityCallback.getMainUserName(),chatActivityCallback.getMainUserEmail(),chatActivityCallback.getContactName(), chatActivityCallback.getContactEmail());
             chatMessagesListView = (GridView)view.findViewById(R.id.listViewChatMessages);
             chatMessagesListView.setAdapter(listAdaptorObj);;
         }
@@ -101,6 +101,8 @@ public class ChatMessageListFragment extends Fragment{
         //public void startChatWithUserNumber(int messageItemNumber);
         public String getMainUserName();
         public String getContactName();
+        public String getMainUserEmail();
+        public String getContactEmail();
         public void hideSoftKeyboard(Activity activity);
         public void startNavigation(MessageItem msgItem);
     }
