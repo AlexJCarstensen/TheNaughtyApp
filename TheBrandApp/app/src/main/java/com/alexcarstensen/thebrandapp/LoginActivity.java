@@ -21,8 +21,9 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity
 {
-    public static final int REQUEST_SIGNUP = 0;
-    private static final String TAG = "LoginActivity";
+    private static final int REQUEST_SIGNUP = 0;
+    public static final String TAG = "LoginActivity";
+    public static final String SEND_EMAIL = "SendEmail";
     private EditText _emailField;
     private EditText _passwordField;
     private Button _loginButton;
@@ -173,11 +174,11 @@ public class LoginActivity extends AppCompatActivity
         progressDialog.setMessage("Authenticating with server...");
         progressDialog.show();
 
-        String email = _emailField.getText().toString();
+        final String email = _emailField.getText().toString();
         String password = _passwordField.getText().toString();
 
         // TODO authenticate with server and login
-        UserItem user = new UserItem(email, password);
+
 
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -198,7 +199,7 @@ public class LoginActivity extends AppCompatActivity
                             progressDialog.dismiss();
                             //Todo check if you want anything sent to the mainactivity
                             Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
-
+                            mainIntent.putExtra(SEND_EMAIL, email);
                             startActivity(mainIntent);
                             finish();
                         }

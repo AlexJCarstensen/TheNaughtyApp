@@ -3,22 +3,16 @@ package com.alexcarstensen.thebrandapp;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alexcarstensen.thebrandapp.Helpers.EmailNameHelper;
-import com.google.android.gms.vision.barcode.Barcode;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -26,10 +20,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
 
 // Implemented an interface between the MainContactListFragment and the MainActivity
 public class MainActivity extends AppCompatActivity implements MainContactListFragment.OnContactSelectedListener {
@@ -60,6 +50,9 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Intent getIntent = getIntent();
+        String email = getIntent.getStringExtra(LoginActivity.SEND_EMAIL);
+        _mainUserItem = new UserItem(email, "GET USERNAME TO PUT HERE");
         SetupFirebase();
 
         _fm = getSupportFragmentManager();
