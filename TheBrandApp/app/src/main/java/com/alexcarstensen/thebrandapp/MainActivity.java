@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.alexcarstensen.thebrandapp.Helpers.EmailNameHelper;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -139,24 +140,25 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
 
                                 String contactEmail = emailView.getText().toString().toLowerCase();
-                                String convertedEmail = EmailNameHelper.ConvertEmail(contactEmail);
+                                String contactConvertedEmail = EmailNameHelper.ConvertEmail(contactEmail);
 
 
 
                                 //Checking if user is in database
-                                if(dataSnapshot.hasChild(convertedEmail)) {
+                                if(dataSnapshot.hasChild(contactConvertedEmail)) {
 
                                     //Get User object from database
-                                    UserItem user = dataSnapshot.child(convertedEmail).getValue(UserItem.class);
+                                    UserItem user = dataSnapshot.child(contactConvertedEmail).getValue(UserItem.class);
 
                                     Log.d("Userthingy", user.get_email());
 
-                                    String myEmail = "pede_ring@hotmail.com";
+                                    String myEmail = _mainUserItem.get_email();
 
                                     //String myEmail = emailView.getText().toString();
                                     String myConvertedEmail = EmailNameHelper.ConvertEmail(myEmail);
+                                    //Lige meget... slet det
                                     String usersConvertedEmail = EmailNameHelper.ConvertEmail(user.get_email());
-                                    String chat = myConvertedEmail + "_" + EmailNameHelper.ConvertEmail(user.get_email());
+                                    String chat = myConvertedEmail + "_" + contactConvertedEmail;
 
                                     Contact myContact = new Contact(user.get_email(), chat);
                                     myContact.setAdded(true);
@@ -164,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
                                     usersContact.setAdded(false);
 
                                     //Updating your own contact list
-                                    mDatabase.child(getResources().getString(R.string.users)).child(myConvertedEmail).child("_contacts").child(EmailNameHelper.ConvertEmail(user.get_email())).setValue(myContact);
+                                    mDatabase.child(getResources().getString(R.string.users)).child(myConvertedEmail).child("_contacts").child(contactConvertedEmail).setValue(myContact);
 
                                     //Updating the user you want to add' contactlist
                                     mDatabase.child(getResources().getString(R.string.users)).child(usersConvertedEmail).child("_contacts").child(myConvertedEmail).setValue(usersContact);
@@ -172,6 +174,9 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
                                     //Creating chat in database
                                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
                                     mDatabase.child(getResources().getString(R.string.chats)).child(chat).child("First Message").setValue(new MessageItem(myEmail, user.get_email(), "Test", sdf.toString() , 0));
+
+
+
                                 }
 
                             }
@@ -251,22 +256,27 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
 
     private void setUserContacts(){
-        // Todo: Få fat i contact listen fra databasen
-        // ** For debugging **
 
-        ValueEventListener startUpContactListener = new ValueEventListener() {
+
+        ValueEventListener ContactListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 Log.d("Contacs", "Getting contacts");
 
+                contactList.clear();
+
                 for (DataSnapshot contactSnapshot: dataSnapshot.getChildren()
                      )
                 {
                     Contact contact = contactSnapshot.getValue(Contact.class);
-                    contactList.add(contact);
+
+                    if(contact.isAdded())
+                        contactList.add(contact);
 
                 }
+
+                RetriveContactUsers();
 
             }
 
@@ -276,12 +286,33 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
             }
         };
 
-        String userPoint = EmailNameHelper.ConvertEmail(_mainUserItem.get_email());
 
-        //Attach singlevalueListener to users contacts TODO: change to users real email
-        mDatabase.child(getResources().getString(R.string.users)).child(userPoint).child("_contacts").addListenerForSingleValueEvent(startUpContactListener);
-        //                                                                    TODO: ^here^
 
+
+        String userDatabasePoint = EmailNameHelper.ConvertEmail(_mainUserItem.get_email());
+
+        //Attach valueListener to users contacts
+        mDatabase.child(getResources().getString(R.string.users)).child(userDatabasePoint).child("_contacts").addValueEventListener(ContactListener);
+        //
+
+
+
+
+
+        /*
+        for(int i = 0; i < 100; i++){
+            userItemList.add(new UserItem("User#"+i,"dummy_email"));
+        }
+        //**                **
+
+        */
+
+
+    }
+
+    private void RetriveContactUsers()
+    {
+        userItemList.clear();
 
         ValueEventListener userSingleListener = new ValueEventListener() {
             @Override
@@ -290,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
                 Log.d("Users", "Getting Users");
 
                 for (Contact contact: contactList
-                     ) {
+                        ) {
                     // add each contact to user list
                     UserItem user = dataSnapshot.child(EmailNameHelper.ConvertEmail(contact.getEmail())).getValue(UserItem.class);
                     userItemList.add(user);
@@ -308,17 +339,6 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
         //Attach singleValue listener for users to iterate throught and find the right ones
         mDatabase.child(getResources().getString(R.string.users)).addListenerForSingleValueEvent(userSingleListener);
-
-
-        /*
-        for(int i = 0; i < 100; i++){
-            userItemList.add(new UserItem("User#"+i,"dummy_email"));
-        }
-        //**                **
-
-        */
-
-
     }
 
     @Override
