@@ -380,16 +380,19 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             Uri downloadUrl = taskSnapshot.getDownloadUrl();
 
-                            mDatabase.child("Pictures").child(EmailNameHelper.ConvertEmail(mainUserName)).child(currentMili.toString()).setValue(downloadUrl.toString());
+                            mDatabase.child("Pictures").child(EmailNameHelper.ConvertEmail(mainUserName)).push().setValue(downloadUrl.toString());
+                            java.util.Date time = new java.util.Date();
+                            MessageItem newPictureMessage = setNewChatPicture(picThmp,time.toString(),downloadUrl.toString(),String.valueOf(mLastLocation.getLatitude()),String.valueOf(mLastLocation.getLongitude()));
+                            UpdateChatWithMessage(newPictureMessage);
+                            //_fragmentMessageList.setMessageItemList(messageItemList);
                         }
                     });
 
-                    java.util.Date time = new java.util.Date();
 
 
-                    messageItemList.add(setNewChatPicture(picThmp,time.toString(),"dummy_pictureUrl",String.valueOf(mLastLocation.getLatitude()),String.valueOf(mLastLocation.getLongitude())));
-                    _fragmentMessageList.setMessageItemList(messageItemList);
-                    //Todo: Hent timestamp, GPS coords og sæt billede ind i data base
+
+
+
                     
 
                 }
