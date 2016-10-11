@@ -71,6 +71,7 @@ public class MapWeatherFragment extends Fragment {
 
             }
         }
+        PACKAGE_NAME = getActivity().getApplicationContext().getPackageName();
         //Registering receiver
         IntentFilter weatherFilter = new IntentFilter();
         weatherFilter.addAction(WeatherService.BROADCAST_FRESH_WEATHER_UPDATE);
@@ -110,7 +111,6 @@ public class MapWeatherFragment extends Fragment {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 weatherService = ((WeatherService.WeatherBinder)service).getService();
-                weatherService.GetFreshWeather();
                 Log.d("Connection", "Connection established");
             }
 
@@ -157,6 +157,12 @@ public class MapWeatherFragment extends Fragment {
 
         }
     };
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        if(isBound)
+            getActivity().getApplicationContext().unbindService(weatherServiceConnection);
+    }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {

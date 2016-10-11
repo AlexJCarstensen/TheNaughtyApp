@@ -56,6 +56,10 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     private FirebaseStorage storage;
     private StorageReference storageReference;
 
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -71,6 +75,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         checkForPermissionIfGrantedInitializeMap();
 
         setPictureMarkersOnMap();
+
     }
 
     private void SetupFirebase()
@@ -275,4 +280,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     {
 
     }
+
+//
+
 }

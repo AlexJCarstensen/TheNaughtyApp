@@ -7,21 +7,19 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.alexcarstensen.thebrandapp.Helpers.EmailNameHelper;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 // Implemented an interface between the MainContactListFragment and the MainActivity
@@ -125,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
                 final EditText emailView = new EditText(MainActivity.this);
                 emailView.setHint(R.string.emailHint);
-
+                emailView.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
                 builder.setView(emailView);
 
                 builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
