@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
                                     //Creating chat in database
                                     java.util.Date time = new java.util.Date();
-                                    mDatabase.child(getResources().getString(R.string.chats)).child(chat).child("First Message").setValue(new MessageItem(myEmail, user.get_email(), "Welcome to the chat", time.toString() , 0));
+                                    mDatabase.child(getResources().getString(R.string.chats)).child(chat).child("First Message").setValue(new MessageItem(myEmail, user.get_email(), "Test", time.toString() , 0));
 
 
 
