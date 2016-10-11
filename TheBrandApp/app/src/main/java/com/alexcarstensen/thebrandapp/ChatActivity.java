@@ -1,27 +1,22 @@
 package com.alexcarstensen.thebrandapp;
 
-import android.*;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -32,11 +27,10 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alexcarstensen.thebrandapp.Helpers.EmailNameHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
-
-import com.alexcarstensen.thebrandapp.Helpers.EmailNameHelper;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
@@ -48,7 +42,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -354,7 +347,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
 
                     FirebaseStorage storage = FirebaseStorage.getInstance();
-                    StorageReference storageRef = storage.getReference(getResources().getString(R.string.storageURL));
+                    StorageReference storageRef = storage.getReferenceFromUrl(getResources().getString(R.string.storageURL));
 
                     final Long currentMili = System.currentTimeMillis();
 
@@ -384,7 +377,8 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
                             Pication newPication = new Pication(downloadUrl.toString(), mLastLocation.getLatitude(), mLastLocation.getLongitude());
                             mDatabase.child("Pictures").child(EmailNameHelper.ConvertEmail(mainUserName)).push().setValue(newPication);
-                            setNewChatPicture(picThmp,time.toString(),"dummy_pictureUrl",String.valueOf(mLastLocation.getLatitude()),String.valueOf(mLastLocation.getLongitude()));
+                            messageItemList.add(setNewChatPicture(picThmp,time.toString(),newPication.getUrl(),String.valueOf(newPication.getLat()),String.valueOf(newPication.getLon())));
+                            _fragmentMessageList.setMessageItemList(messageItemList);
                         }
                     });
 
