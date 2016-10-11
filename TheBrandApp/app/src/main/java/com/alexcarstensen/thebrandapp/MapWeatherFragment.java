@@ -74,11 +74,11 @@ public class MapWeatherFragment extends Fragment {
         //Registering receiver
         IntentFilter weatherFilter = new IntentFilter();
         weatherFilter.addAction(WeatherService.BROADCAST_FRESH_WEATHER_UPDATE);
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(onWeatherUpdate, weatherFilter);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(onWeatherUpdate, weatherFilter);
 
         setupConnectionToWeatherService();
-        Intent bindIntent = new Intent(getContext(), WeatherService.class);
-        isBound = getContext().bindService(bindIntent, weatherServiceConnection, Context.BIND_AUTO_CREATE);
+        Intent bindIntent = new Intent(getActivity(), WeatherService.class);
+        isBound = getActivity().getApplicationContext().bindService(bindIntent, weatherServiceConnection, Context.BIND_AUTO_CREATE);
 
         return view;
     }
