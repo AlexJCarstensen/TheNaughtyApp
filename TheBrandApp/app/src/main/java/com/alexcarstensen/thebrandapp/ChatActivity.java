@@ -110,8 +110,8 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
         Bundle bundle = initIntent.getExtras();
         mainUserName = bundle.getString(MainActivity.SEND_MAINUSER_USERNAME_INFO);
         contactName = bundle.getString(MainActivity.SEND_CONTACT_USERNAME_INFO);
-        mainUserEmail = bundle.getString(MainActivity.SEND_MAINUSER_CHAT_INFO);
-        contactEmail = bundle.getString(MainActivity.SEND_CONTACT_CHAT_INFO);
+        mainUserEmail = bundle.getString(MainActivity.SEND_MAINUSER_EMAIL_INFO);
+        contactEmail = bundle.getString(MainActivity.SEND_CONTACT_EMAIL_INFO);
 
         SetupFirebase();
 

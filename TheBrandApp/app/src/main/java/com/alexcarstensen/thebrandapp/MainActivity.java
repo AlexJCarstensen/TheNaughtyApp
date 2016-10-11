@@ -41,8 +41,8 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
     ArrayList<UserItem> userItemList = new ArrayList<UserItem>();
     ArrayList<Contact> contactList = new ArrayList<>();
 
-    public static final String SEND_MAINUSER_CHAT_INFO = "send_user_chat_info";
-    public static final String SEND_CONTACT_CHAT_INFO = "send_contact_chat_info";
+    public static final String SEND_MAINUSER_EMAIL_INFO = "send_user_email_info";
+    public static final String SEND_CONTACT_EMAIL_INFO = "send_contact_email_info";
     public static final String SEND_CONTACT_USERNAME_INFO = "send_contact_username_info";
     public static final String SEND_MAINUSER_USERNAME_INFO = "send_mainuser_username_info";
     //Firebase
@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
             public void onClick(View view) {
                 // Todo: Virker ikke helt?
                 Intent mapIntent = new Intent(getApplicationContext(), MapActivity.class);
+                mapIntent.putExtra(SEND_MAINUSER_EMAIL_INFO,_mainUserItem.get_email());
                 startActivity(mapIntent);
 
             }
@@ -244,8 +245,8 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
             // REF: http://www.androidtracks.com/android/how-to-pass-a-data-from-one-activity-to-another-in-android.html
             Intent chatIntent = new Intent(MainActivity.this, ChatActivity.class);
             Bundle userChatInfoBundle = new Bundle();
-            userChatInfoBundle.putString(SEND_MAINUSER_CHAT_INFO, _mainUserItem.get_email());
-            userChatInfoBundle.putString(SEND_CONTACT_CHAT_INFO, tempUserItem.get_email());
+            userChatInfoBundle.putString(SEND_MAINUSER_EMAIL_INFO, _mainUserItem.get_email());
+            userChatInfoBundle.putString(SEND_CONTACT_EMAIL_INFO, tempUserItem.get_email());
             userChatInfoBundle.putString(SEND_MAINUSER_USERNAME_INFO, _mainUserItem.get_userName());
             userChatInfoBundle.putString(SEND_CONTACT_USERNAME_INFO, tempUserItem.get_userName());
             chatIntent.putExtras(userChatInfoBundle);
