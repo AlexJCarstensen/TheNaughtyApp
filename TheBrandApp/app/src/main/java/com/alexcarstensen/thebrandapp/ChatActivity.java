@@ -22,6 +22,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -84,6 +85,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
     public String contactName;
     public String mainUserEmail;
     public String contactEmail;
+    private String chatName;
 
     //Firebase
     private DatabaseReference mDatabase;
@@ -155,7 +157,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
                     String msg =_editTextChat.getText().toString();
 
-                    messageItemList.add(setNewChatMessage(msg));
+                   setNewChatMessage(msg);
                     _fragmentMessageList.setMessageItemList(messageItemList);
                     _editTextChat.setText("");
                     return true;
@@ -212,7 +214,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
                 Contact contact = dataSnapshot.getValue(Contact.class);
 
-                String chatName = contact.getChat();
+                chatName = contact.getChat();
 
                 SetupChatListener(chatName);
 
@@ -262,7 +264,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                Log.d("CHat", "Failes to retrieve messages!");
             }
         };
 
@@ -272,19 +274,25 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
 
     private void updateChatListOnEvent(){
-        //Todo: Opdater chatten ved event.
-//        messageItemList = database??
+
         _fragmentMessageList.setMessageItemList(messageItemList);
 
     }
 
-    private MessageItem setNewChatMessage(String chatMessage){
-        //Todo: Updater databasen
+    private void setNewChatMessage(String chatMessage){
+
         java.util.Date time = new java.util.Date();
 
         MessageItem message = new MessageItem(mainUserEmail, contactEmail, chatMessage, time.toString(), 0);
 
-        return message;
+        UpdateChatWithMessage(message);
+
+
+    }
+
+    private void UpdateChatWithMessage(MessageItem newMessage)
+    {
+        mDatabase.child(getResources().getString(R.string.chats)).child(chatName).push().setValue(newMessage);
     }
 
     private MessageItem setNewChatPicture(Bitmap chatPicture, String timestamp, String pictureUrl, String latitude, String longitude){
