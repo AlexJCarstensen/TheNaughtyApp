@@ -3,7 +3,6 @@ package com.alexcarstensen.thebrandapp;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -11,13 +10,13 @@ import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -33,9 +32,6 @@ import com.alexcarstensen.thebrandapp.Helpers.EmailNameHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
@@ -51,6 +47,8 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
+
+import static android.provider.MediaStore.EXTRA_OUTPUT;
 
 // REF: Made from ArniesFragmentsMovie example
 public class ChatActivity extends AppCompatActivity implements ChatMessageListFragment.OnChatSelectedListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
@@ -75,6 +73,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
     private int picTaken = 0;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
+    private Uri providedUri;
 
     ArrayList<MessageItem> messageItemList = new ArrayList<MessageItem>();
 
@@ -375,8 +374,12 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
         switch (requestCode) {
             case REQUEST_IMAGE_CAPTURE: {
                 if (resultCode == RESULT_OK) {
-                    File file = new File(this.getFilesDir(), "picture.jpg");
-                    picUri = Uri.fromFile(file);
+                    File file = new File(this.getFilesDir(), "/images/picture.jpg");
+
+                    providedUri = FileProvider.getUriForFile(
+                            ChatActivity.this, "com.alexcarstensen.thebrandapp", file);
+                    //providedUri = bundle.
+                    //picUri = Uri.fromFile(file);
                     pictureCrop();
                 }
             } break;
@@ -524,23 +527,35 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            String imageFilePath = this.getFilesDir().getAbsolutePath() + "/picture.jpg";
-            File imageFile = new File(imageFilePath);
+            final File imagePath = new File(getFilesDir(), "images");
+            final File imageFile = new File(imagePath, "picture.jpg");
+
+
+            providedUri = FileProvider.getUriForFile(
+                    ChatActivity.this, "com.alexcarstensen.thebrandapp", imageFile);
             Uri  imageFileUri = Uri.fromFile(imageFile);
 
-            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageFileUri);
+            takePictureIntent.putExtra(EXTRA_OUTPUT, providedUri);
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
         }
     }
 
     //REF: http://stackoverflow.com/questions/15228812/crop-image-in-android question and answer
     private void pictureCrop() {
+
+
+
+//        cropIntent.putExtra("scale", true);
+
+        // Exception will be thrown if read permission isn't granted
+
+       // startActivityForResult(cropIntent, PIC_CROP);
         // take care of exceptions
         try {
             // call the standard crop action intent (the user device may not support it)
             Intent cropIntent = new Intent("com.android.camera.action.CROP");
             // indicate image type and Uri
-            cropIntent.setDataAndType(picUri, "image/*");
+            cropIntent.setDataAndType(providedUri, "image/*");
             // set crop properties
             cropIntent.putExtra("crop", "true");
             // indicate aspect of desired crop
@@ -551,6 +566,8 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
             cropIntent.putExtra("outputY", 550);
             // retrieve data on return
             cropIntent.putExtra("return-data", true);
+            cropIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
             // start the activity - we handle returning in onActivityResult
             startActivityForResult(cropIntent, REQUEST_CROP_IMAGE);
         }

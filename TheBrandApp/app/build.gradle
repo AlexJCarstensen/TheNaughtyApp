@@ -5,7 +5,7 @@ android {
         config {
             keyAlias 'TheBrandApp'
             keyPassword 'Test1234'
-            storeFile file('C:/Users/Pede_/Desktop/thebrandapp.jks')
+            storeFile file('/home/ubuntuudvikling/Documents/thebrandapp.jks')
             storePassword 'Test1234'
         }
     }
