@@ -182,7 +182,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     private Bitmap resize(Bitmap image)
     {
-        return Bitmap.createScaledBitmap(image, 50, 50, false);
+        return Bitmap.createScaledBitmap(image, 130, 130, false);
     }
 
     /**

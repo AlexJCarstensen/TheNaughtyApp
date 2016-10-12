@@ -5,7 +5,7 @@ android {
         config {
             keyAlias 'TheBrandApp'
             keyPassword 'Test1234'
-            storeFile file('/home/plex/Documents/keystores/thebrandapp.jks')
+            storeFile file('C:/Users/Pede_/Desktop/thebrandapp.jks')
             storePassword 'Test1234'
         }
     }
@@ -51,7 +51,5 @@ dependencies {
     //volley
     compile 'com.android.volley:volley:1.0.0'
     testCompile 'junit:junit:4.12'
-
-
 }
 apply plugin: 'com.google.gms.google-services'

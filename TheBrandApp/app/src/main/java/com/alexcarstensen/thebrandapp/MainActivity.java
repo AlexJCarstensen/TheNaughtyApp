@@ -73,19 +73,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
         }
         else {
-            // Todo: Hent contacts fra data basen der passer til main useren, skal denne opdateres periodisk?
             setUserContacts();
-            // ** For debugging **
-//            for (int i = 0; i < 3; i++) {
-//
-//                if (i % 2 == 1) {
-//                    messageItemList.add(new MessageItem(mainUserName, contactName, "Hi#" + i, "dummy", 0));
-//                } else {
-//                    messageItemList.add(new MessageItem(contactName, mainUserName, "Hi#" + i, "dummy", 0));
-//                }
-//            }
-
-
         }
 
 
@@ -94,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
         _mapFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Todo: Virker ikke helt?
+
                 Intent mapIntent = new Intent(getApplicationContext(), MapActivity.class);
                 mapIntent.putExtra(SEND_MAINUSER_EMAIL_INFO,_mainUserItem.get_email());
                 startActivity(mapIntent);
