@@ -3,6 +3,7 @@ package com.alexcarstensen.thebrandapp;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -374,7 +375,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
         switch (requestCode) {
             case REQUEST_IMAGE_CAPTURE: {
                 if (resultCode == RESULT_OK) {
-                    File file = new File(Environment.getExternalStorageDirectory().getPath(), "picture.jpg");
+                    File file = new File(this.getFilesDir(), "picture.jpg");
                     picUri = Uri.fromFile(file);
                     pictureCrop();
                 }
@@ -523,7 +524,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            String imageFilePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/picture.jpg";
+            String imageFilePath = this.getFilesDir().getAbsolutePath() + "/picture.jpg";
             File imageFile = new File(imageFilePath);
             Uri  imageFileUri = Uri.fromFile(imageFile);
 
