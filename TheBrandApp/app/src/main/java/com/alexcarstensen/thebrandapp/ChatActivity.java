@@ -1,27 +1,25 @@
 package com.alexcarstensen.thebrandapp;
 
-import android.*;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -31,11 +29,13 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alexcarstensen.thebrandapp.Helpers.EmailNameHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
-
-import com.alexcarstensen.thebrandapp.Helpers.EmailNameHelper;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
@@ -47,7 +47,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -84,9 +83,11 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
     public String contactName;
     public String mainUserEmail;
     public String contactEmail;
+    private String chatName;
 
     //Firebase
     private DatabaseReference mDatabase;
+    private FirebaseStorage storage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,8 +109,8 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
         Bundle bundle = initIntent.getExtras();
         mainUserName = bundle.getString(MainActivity.SEND_MAINUSER_USERNAME_INFO);
         contactName = bundle.getString(MainActivity.SEND_CONTACT_USERNAME_INFO);
-        mainUserEmail = bundle.getString(MainActivity.SEND_MAINUSER_CHAT_INFO);
-        contactEmail = bundle.getString(MainActivity.SEND_CONTACT_CHAT_INFO);
+        mainUserEmail = bundle.getString(MainActivity.SEND_MAINUSER_EMAIL_INFO);
+        contactEmail = bundle.getString(MainActivity.SEND_CONTACT_EMAIL_INFO);
 
         SetupFirebase();
 
@@ -155,7 +156,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
                     String msg =_editTextChat.getText().toString();
 
-                    messageItemList.add(setNewChatMessage(msg));
+                   setNewChatMessage(msg);
                     _fragmentMessageList.setMessageItemList(messageItemList);
                     _editTextChat.setText("");
                     return true;
@@ -178,6 +179,9 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
             public void onClick(View v) {
                 Toast.makeText(getApplication().getApplicationContext(),"MapActivity", Toast.LENGTH_SHORT).show();
                 //Todo: Lav intent til at starte MapActivity - returner billede i bundle
+                Intent mapIntent = new Intent(getApplicationContext(), MapActivity.class);
+                mapIntent.putExtra(MainActivity.SEND_MAINUSER_EMAIL_INFO,mainUserEmail);
+                startActivity(mapIntent);
 
                 // ** For debugging **
                 // REF: http://stackoverflow.com/questions/3035692/how-to-convert-a-drawable-to-a-bitmap
@@ -198,6 +202,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
     {
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
+        storage = FirebaseStorage.getInstance();
 
     }
 
@@ -212,7 +217,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
                 Contact contact = dataSnapshot.getValue(Contact.class);
 
-                String chatName = contact.getChat();
+                chatName = contact.getChat();
 
                 SetupChatListener(chatName);
 
@@ -236,11 +241,34 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-                MessageItem newMessage = dataSnapshot.getValue(MessageItem.class);
+                final MessageItem newMessage = dataSnapshot.getValue(MessageItem.class);
 
-                messageItemList.add(newMessage);
+                if(newMessage.get_hasImage() == 1)
+                {
+                    //TODO: Get image from storage
+                    StorageReference storageRefImage = storage.getReferenceFromUrl(newMessage.get_imageUrl());
 
-                updateChatListOnEvent();
+                    storageRefImage.getBytes(MapActivity.ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>()
+                    {
+                        @Override
+                        public void onSuccess(byte[] bytes)
+                        {
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                            MessageItem newPictureMessage = setNewChatPicture(bitmap, newMessage);
+                            messageItemList.add(newPictureMessage);
+
+                            updateChatListOnEvent();
+
+
+                        }
+                    });
+                }
+                else{
+                    messageItemList.add(newMessage);
+
+                    updateChatListOnEvent();
+                }
 
 
             }
@@ -262,7 +290,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                Log.d("CHat", "Failes to retrieve messages!");
             }
         };
 
@@ -272,29 +300,43 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
 
     private void updateChatListOnEvent(){
-        //Todo: Opdater chatten ved event.
-//        messageItemList = database??
+
         _fragmentMessageList.setMessageItemList(messageItemList);
 
     }
 
-    private MessageItem setNewChatMessage(String chatMessage){
-        //Todo: Updater databasen
+    private void setNewChatMessage(String chatMessage){
+
         java.util.Date time = new java.util.Date();
 
         MessageItem message = new MessageItem(mainUserEmail, contactEmail, chatMessage, time.toString(), 0);
 
-        return message;
+        UpdateChatWithMessage(message);
+
+
     }
 
-    private MessageItem setNewChatPicture(Bitmap chatPicture, String timestamp, String pictureUrl, String latitude, String longitude){
-        MessageItem pictureMessage = new MessageItem(mainUserEmail, contactEmail, "Empty Message", timestamp, 0);
+    private void setNewChatMessage(Uri imageUrl)
+    {
+        java.util.Date time = new java.util.Date();
 
-        pictureMessage.set_hasImage(1); // Should be a bool
-        pictureMessage.set_imageUrl(pictureUrl);
+        MessageItem message = new MessageItem(mainUserEmail, contactEmail, "", time.toString(), 1, imageUrl.toString());
+
+        UpdateChatWithMessage(message);
+    }
+
+    private void UpdateChatWithMessage(MessageItem newMessage)
+    {
+        mDatabase.child(getResources().getString(R.string.chats)).child(chatName).push().setValue(newMessage);
+    }
+
+    private MessageItem setNewChatPicture(Bitmap chatPicture, MessageItem regularMessage){
+        MessageItem pictureMessage = new MessageItem(regularMessage.get_sender(), regularMessage.get_receiver(), "Empty Message", regularMessage.get_timestamp(), 1, regularMessage.get_imageUrl());
+
+
         pictureMessage.set_imageBitmap(chatPicture);
-        pictureMessage.set_latitude(latitude);
-        pictureMessage.set_longitude(longitude);
+        pictureMessage.set_latitude(regularMessage.get_latitude());
+        pictureMessage.set_longitude(regularMessage.get_longitude());
 
         return pictureMessage;
     }
@@ -333,7 +375,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
         switch (requestCode) {
             case REQUEST_IMAGE_CAPTURE: {
                 if (resultCode == RESULT_OK) {
-                    File file = new File(Environment.getExternalStorageDirectory().getPath(), "picture.jpg");
+                    File file = new File(this.getFilesDir(), "picture.jpg");
                     picUri = Uri.fromFile(file);
                     pictureCrop();
                 }
@@ -346,7 +388,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
 
                     FirebaseStorage storage = FirebaseStorage.getInstance();
-                    StorageReference storageRef = storage.getReference(getResources().getString(R.string.storageURL));
+                    StorageReference storageRef = storage.getReferenceFromUrl(getResources().getString(R.string.storageURL));
 
                     final Long currentMili = System.currentTimeMillis();
 
@@ -372,16 +414,25 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             Uri downloadUrl = taskSnapshot.getDownloadUrl();
 
-                            mDatabase.child("Pictures").child(EmailNameHelper.ConvertEmail(mainUserName)).child(currentMili.toString()).setValue(downloadUrl.toString());
+                            java.util.Date time = new java.util.Date();
+
+                            Pication newPication = new Pication(downloadUrl.toString(), mLastLocation.getLatitude(), mLastLocation.getLongitude());
+                            mDatabase.child("Pictures").child(EmailNameHelper.ConvertEmail(mainUserEmail)).push().setValue(newPication);
+
+                           setNewChatMessage(downloadUrl);
+
+                            /*
+                            messageItemList.add(setNewChatPicture(picThmp,time.toString(),newPication.getUrl(),String.valueOf(newPication.getLat()),String.valueOf(newPication.getLon())));
+                            _fragmentMessageList.setMessageItemList(messageItemList);
+                            */
                         }
                     });
 
-                    java.util.Date time = new java.util.Date();
 
 
-                    messageItemList.add(setNewChatPicture(picThmp,time.toString(),"dummy_pictureUrl",String.valueOf(mLastLocation.getLatitude()),String.valueOf(mLastLocation.getLongitude())));
-                    _fragmentMessageList.setMessageItemList(messageItemList);
-                    //Todo: Hent timestamp, GPS coords og sæt billede ind i data base
+
+
+
                     
 
                 }
@@ -473,7 +524,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            String imageFilePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/picture.jpg";
+            String imageFilePath = this.getFilesDir().getAbsolutePath() + "/picture.jpg";
             File imageFile = new File(imageFilePath);
             Uri  imageFileUri = Uri.fromFile(imageFile);
 

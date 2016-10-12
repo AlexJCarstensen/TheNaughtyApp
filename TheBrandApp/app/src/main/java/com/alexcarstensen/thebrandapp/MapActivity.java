@@ -1,6 +1,7 @@
 package com.alexcarstensen.thebrandapp;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,8 +12,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.alexcarstensen.thebrandapp.Helpers.EmailNameHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -25,8 +28,15 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import java.util.ArrayList;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
 {
@@ -37,15 +47,43 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     private final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION_SET_LOCATION = 2;
 
+    private String _mainUserEmail;
+    private ArrayList<String> downloadUrls = new ArrayList<>();
+    public static final long ONE_MEGABYTE = 4096 * 4096; // Der skal diskuteres om hvordan billeder gemmes
+
+    //Firebase
+    private DatabaseReference mDatabase;
+    private FirebaseStorage storage;
+    private StorageReference storageReference;
+
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
+        Intent getIntent = getIntent();
+
+        _mainUserEmail = getIntent.getStringExtra(MainActivity.SEND_MAINUSER_EMAIL_INFO);
+
+        SetupFirebase();
+
         checkForPermissionIfGrantedInitializeMap();
 
         setPictureMarkersOnMap();
+
+    }
+
+    private void SetupFirebase()
+    {
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        storage = FirebaseStorage.getInstance();
+
     }
 
     private void checkForPermissionIfGrantedInitializeMap()
@@ -91,29 +129,60 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     private void setPictureMarkersOnMap()
     {
-        // TODO DEBUGGING ATM.. NEED REMAKE WHEN FIREBASE IS DONE
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageReference = storage.getReferenceFromUrl(getResources().getString(R.string.storageURL));
-        StorageReference storageRefImage = storageReference.child("mountains.jpeg");
-        final long ONE_MEGABYTE = 4096 * 4096; // Der skal diskuteres om hvordan billeder gemmes
-        storageRefImage.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>()
-        {
+        // TODO DEBUGGING ATM.. Retrive pictures from downloadURl
+
+
+        ValueEventListener picturesListener = new ValueEventListener() {
             @Override
-            public void onSuccess(byte[] bytes)
-            {
-                Bitmap bitmap = resize(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
-                LatLng example = new LatLng(56.164861, 10.196456);
-                mMap.addMarker(new MarkerOptions()
-                        .position(example).title("picture")
-                        .icon(BitmapDescriptorFactory.fromBitmap(bitmap)));
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot urlSnapShot: dataSnapshot.getChildren()
+                     ) {
+
+                    final Pication pic = urlSnapShot.getValue(Pication.class);
+
+                    StorageReference storageRefImage = storage.getReferenceFromUrl(pic.getUrl());
+
+                    storageRefImage.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>()
+                    {
+                        @Override
+                        public void onSuccess(byte[] bytes)
+                        {
+                            Bitmap bitmap = resize(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                            LatLng example = new LatLng(pic.getLat(), pic.getLon());
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(example).title("picture")
+                                    .icon(BitmapDescriptorFactory.fromBitmap(bitmap)));
+                        }
+                    });
+
+                }
+
+
+
             }
-        });
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d("Maps", "Couldn't fetch pictures");
+            }
+        };
+
+        String usersConvertedEmail = EmailNameHelper.ConvertEmail(_mainUserEmail);
+
+        mDatabase.child("Pictures").child(usersConvertedEmail).addListenerForSingleValueEvent(picturesListener);
+
+
+
+
+
+
 
     }
 
     private Bitmap resize(Bitmap image)
     {
-        return Bitmap.createScaledBitmap(image, 50, 50, false);
+        return Bitmap.createScaledBitmap(image, 130, 130, false);
     }
 
     /**
@@ -211,4 +280,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     {
 
     }
+
+//
+
 }

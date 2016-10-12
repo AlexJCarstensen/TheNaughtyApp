@@ -7,6 +7,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -19,8 +20,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 // Implemented an interface between the MainContactListFragment and the MainActivity
@@ -40,8 +39,8 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
     ArrayList<UserItem> userItemList = new ArrayList<UserItem>();
     ArrayList<Contact> contactList = new ArrayList<>();
 
-    public static final String SEND_MAINUSER_CHAT_INFO = "send_user_chat_info";
-    public static final String SEND_CONTACT_CHAT_INFO = "send_contact_chat_info";
+    public static final String SEND_MAINUSER_EMAIL_INFO = "send_user_email_info";
+    public static final String SEND_CONTACT_EMAIL_INFO = "send_contact_email_info";
     public static final String SEND_CONTACT_USERNAME_INFO = "send_contact_username_info";
     public static final String SEND_MAINUSER_USERNAME_INFO = "send_mainuser_username_info";
     //Firebase
@@ -74,19 +73,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
         }
         else {
-            // Todo: Hent contacts fra data basen der passer til main useren, skal denne opdateres periodisk?
             setUserContacts();
-            // ** For debugging **
-//            for (int i = 0; i < 3; i++) {
-//
-//                if (i % 2 == 1) {
-//                    messageItemList.add(new MessageItem(mainUserName, contactName, "Hi#" + i, "dummy", 0));
-//                } else {
-//                    messageItemList.add(new MessageItem(contactName, mainUserName, "Hi#" + i, "dummy", 0));
-//                }
-//            }
-
-
         }
 
 
@@ -95,8 +82,9 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
         _mapFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Todo: Virker ikke helt?
+
                 Intent mapIntent = new Intent(getApplicationContext(), MapActivity.class);
+                mapIntent.putExtra(SEND_MAINUSER_EMAIL_INFO,_mainUserItem.get_email());
                 startActivity(mapIntent);
 
             }
@@ -123,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
                 final EditText emailView = new EditText(MainActivity.this);
                 emailView.setHint(R.string.emailHint);
-
+                emailView.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
                 builder.setView(emailView);
 
                 builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
@@ -139,24 +127,25 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
 
                                 String contactEmail = emailView.getText().toString().toLowerCase();
-                                String convertedEmail = EmailNameHelper.ConvertEmail(contactEmail);
+                                String contactConvertedEmail = EmailNameHelper.ConvertEmail(contactEmail);
 
 
 
                                 //Checking if user is in database
-                                if(dataSnapshot.hasChild(convertedEmail)) {
+                                if(dataSnapshot.hasChild(contactConvertedEmail)) {
 
                                     //Get User object from database
-                                    UserItem user = dataSnapshot.child(convertedEmail).getValue(UserItem.class);
+                                    UserItem user = dataSnapshot.child(contactConvertedEmail).getValue(UserItem.class);
 
                                     Log.d("Userthingy", user.get_email());
 
-                                    String myEmail = "pede_ring@hotmail.com";
+                                    String myEmail = _mainUserItem.get_email();
 
                                     //String myEmail = emailView.getText().toString();
                                     String myConvertedEmail = EmailNameHelper.ConvertEmail(myEmail);
+                                    //Lige meget... slet det
                                     String usersConvertedEmail = EmailNameHelper.ConvertEmail(user.get_email());
-                                    String chat = myConvertedEmail + "_" + EmailNameHelper.ConvertEmail(user.get_email());
+                                    String chat = myConvertedEmail + "_" + contactConvertedEmail;
 
                                     Contact myContact = new Contact(user.get_email(), chat);
                                     myContact.setAdded(true);
@@ -164,14 +153,17 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
                                     usersContact.setAdded(false);
 
                                     //Updating your own contact list
-                                    mDatabase.child(getResources().getString(R.string.users)).child(myConvertedEmail).child("_contacts").child(EmailNameHelper.ConvertEmail(user.get_email())).setValue(myContact);
+                                    mDatabase.child(getResources().getString(R.string.users)).child(myConvertedEmail).child("_contacts").child(contactConvertedEmail).setValue(myContact);
 
                                     //Updating the user you want to add' contactlist
                                     mDatabase.child(getResources().getString(R.string.users)).child(usersConvertedEmail).child("_contacts").child(myConvertedEmail).setValue(usersContact);
 
                                     //Creating chat in database
-                                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-                                    mDatabase.child(getResources().getString(R.string.chats)).child(chat).child("First Message").setValue(new MessageItem(myEmail, user.get_email(), "Test", sdf.toString() , 0));
+                                    java.util.Date time = new java.util.Date();
+                                    mDatabase.child(getResources().getString(R.string.chats)).child(chat).child("First Message").setValue(new MessageItem(myEmail, user.get_email(), "Test", time.toString() , 0));
+
+
+
                                 }
 
                             }
@@ -239,8 +231,8 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
             // REF: http://www.androidtracks.com/android/how-to-pass-a-data-from-one-activity-to-another-in-android.html
             Intent chatIntent = new Intent(MainActivity.this, ChatActivity.class);
             Bundle userChatInfoBundle = new Bundle();
-            userChatInfoBundle.putString(SEND_MAINUSER_CHAT_INFO, _mainUserItem.get_email());
-            userChatInfoBundle.putString(SEND_CONTACT_CHAT_INFO, tempUserItem.get_email());
+            userChatInfoBundle.putString(SEND_MAINUSER_EMAIL_INFO, _mainUserItem.get_email());
+            userChatInfoBundle.putString(SEND_CONTACT_EMAIL_INFO, tempUserItem.get_email());
             userChatInfoBundle.putString(SEND_MAINUSER_USERNAME_INFO, _mainUserItem.get_userName());
             userChatInfoBundle.putString(SEND_CONTACT_USERNAME_INFO, tempUserItem.get_userName());
             chatIntent.putExtras(userChatInfoBundle);
@@ -251,22 +243,27 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
 
     private void setUserContacts(){
-        // Todo: Få fat i contact listen fra databasen
-        // ** For debugging **
 
-        ValueEventListener startUpContactListener = new ValueEventListener() {
+
+        ValueEventListener ContactListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 Log.d("Contacs", "Getting contacts");
 
+                contactList.clear();
+
                 for (DataSnapshot contactSnapshot: dataSnapshot.getChildren()
                      )
                 {
                     Contact contact = contactSnapshot.getValue(Contact.class);
-                    contactList.add(contact);
+
+                    if(contact.isAdded())
+                        contactList.add(contact);
 
                 }
+
+                RetriveContactUsers();
 
             }
 
@@ -276,12 +273,33 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
             }
         };
 
-        String userPoint = EmailNameHelper.ConvertEmail(_mainUserItem.get_email());
 
-        //Attach singlevalueListener to users contacts TODO: change to users real email
-        mDatabase.child(getResources().getString(R.string.users)).child(userPoint).child("_contacts").addListenerForSingleValueEvent(startUpContactListener);
-        //                                                                    TODO: ^here^
 
+
+        String userDatabasePoint = EmailNameHelper.ConvertEmail(_mainUserItem.get_email());
+
+        //Attach valueListener to users contacts
+        mDatabase.child(getResources().getString(R.string.users)).child(userDatabasePoint).child("_contacts").addValueEventListener(ContactListener);
+        //
+
+
+
+
+
+        /*
+        for(int i = 0; i < 100; i++){
+            userItemList.add(new UserItem("User#"+i,"dummy_email"));
+        }
+        //**                **
+
+        */
+
+
+    }
+
+    private void RetriveContactUsers()
+    {
+        userItemList.clear();
 
         ValueEventListener userSingleListener = new ValueEventListener() {
             @Override
@@ -290,7 +308,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
                 Log.d("Users", "Getting Users");
 
                 for (Contact contact: contactList
-                     ) {
+                        ) {
                     // add each contact to user list
                     UserItem user = dataSnapshot.child(EmailNameHelper.ConvertEmail(contact.getEmail())).getValue(UserItem.class);
                     userItemList.add(user);
@@ -308,17 +326,6 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
         //Attach singleValue listener for users to iterate throught and find the right ones
         mDatabase.child(getResources().getString(R.string.users)).addListenerForSingleValueEvent(userSingleListener);
-
-
-        /*
-        for(int i = 0; i < 100; i++){
-            userItemList.add(new UserItem("User#"+i,"dummy_email"));
-        }
-        //**                **
-
-        */
-
-
     }
 
     @Override

@@ -23,7 +23,9 @@ public class MessageItem implements Parcelable {
 
 
 
-    public MessageItem(){};
+    public MessageItem(){
+
+    };
 
     public MessageItem( String sender, String _receiver, String message, String timestamp, int hasImage){
         this._sender = sender;
@@ -32,6 +34,18 @@ public class MessageItem implements Parcelable {
         this._timestamp = timestamp;
         this._hasImage = hasImage;
     }
+
+    public MessageItem( String sender, String _receiver, String message, String timestamp, int hasImage, String imageUrl){
+        this._sender = sender;
+        this._receiver = _receiver;
+        this._message = message;
+        this._timestamp = timestamp;
+        this._hasImage = hasImage;
+        this._imageUrl = imageUrl;
+    }
+
+
+
 
     protected MessageItem(Parcel in) {
         _sender = in.readString();
@@ -77,8 +91,8 @@ public class MessageItem implements Parcelable {
     }
 
     public String get_imageUrl() {return _imageUrl;}
-    public void set_imageUrl(String timestamp) {
-        this._timestamp = timestamp;
+    public void set_imageUrl(String imageUrl) {
+        this._imageUrl = imageUrl;
     }
 
     public int get_hasImage() {return _hasImage;}
