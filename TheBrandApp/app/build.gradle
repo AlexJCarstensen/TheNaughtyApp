@@ -5,7 +5,7 @@ android {
         config {
             keyAlias 'TheBrandApp'
             keyPassword 'Test1234'
-            storeFile file('C:/Users/Pede_/Desktop/thebrandapp.jks')
+                storeFile file('/home/ubuntuudvikling/Documents/thebrandapp.jks')
             storePassword 'Test1234'
         }
     }
@@ -45,9 +45,7 @@ dependencies {
     compile 'com.google.firebase:firebase-core:9.4.0'
     compile 'com.google.firebase:firebase-database:9.4.0'
     compile 'com.google.firebase:firebase-auth:9.4.0'
-
     // Firebase UI
-
     testCompile 'junit:junit:4.12'
     //volley
     compile 'com.android.volley:volley:1.0.0'
