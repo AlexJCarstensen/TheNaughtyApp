@@ -38,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
     ArrayList<UserItem> userItemList = new ArrayList<UserItem>();
     ArrayList<Contact> contactList = new ArrayList<>();
+    ArrayList<Contact> newContacts = new ArrayList<>();
+
 
     public static final String SEND_MAINUSER_EMAIL_INFO = "send_user_email_info";
     public static final String SEND_CONTACT_EMAIL_INFO = "send_contact_email_info";
@@ -258,8 +260,13 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
                 {
                     Contact contact = contactSnapshot.getValue(Contact.class);
 
-                    if(contact.isAdded())
+                    if(contact.isAdded()) {
                         contactList.add(contact);
+                    }
+                    else
+                    {
+                        newContacts.add(contact);
+                    }
 
                 }
 
