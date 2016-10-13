@@ -19,6 +19,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.StreamDownloadTask;
 
 import java.util.ArrayList;
 
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
     private MainContactListFragment _fragmentContactList;
     private FloatingActionButton _mapFab;
     private FloatingActionButton _addFab;
+    private FloatingActionButton _requestFab;
 
     ArrayList<UserItem> userItemList = new ArrayList<UserItem>();
     ArrayList<Contact> contactList = new ArrayList<>();
@@ -64,6 +66,9 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
         _fragmentContactList = (MainContactListFragment) _fm.findFragmentById(R.id.main_fragment_list);
         _mapFab = (FloatingActionButton) findViewById(R.id.fapMapButton);
         _addFab = (FloatingActionButton) findViewById(R.id.fapAddButton);
+        _requestFab = (FloatingActionButton) findViewById(R.id.fabRequestButton);
+
+        _requestFab.setEnabled(false);
 
 
         // Save chat message list
@@ -206,6 +211,86 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
             }
         });
 
+        _requestFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+                // ** For debugging **
+                Toast.makeText(getApplication().getApplicationContext(),"Friend request", Toast.LENGTH_SHORT).show();
+
+
+                //TODO: Lav pænere dialog
+                //creating dialog to add contact
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+                final String[] dummyfriends = {"Peter", "Moe", "hili"};
+                final String[] friendRequest = new String[newContacts.size()];
+                 int i = 0;
+
+                for (Contact c: newContacts
+                     ) {
+                    friendRequest[i] = c.getEmail();
+                    i++;
+                }
+
+                //TODO: remember to externalize string
+                builder.setTitle("Friend request").setItems(friendRequest, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, final int which) {
+                        // The 'which' argument contains the index position
+                        // of the selected item
+                        Toast.makeText(getApplication().getApplicationContext(), friendRequest[which].toString(), Toast.LENGTH_SHORT).show();
+                        AlertDialog.Builder builderAccept = new AlertDialog.Builder(MainActivity.this);
+
+                        builderAccept.setMessage("Accept friendrequest from " + friendRequest[which].toString())
+                                .setPositiveButton("Accept", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        mDatabase.child(getResources().getString(R.string.users))
+                                                .child(EmailNameHelper.ConvertEmail(_mainUserItem.get_email()))
+                                                .child("_contacts").child(EmailNameHelper.ConvertEmail(friendRequest[which].toString()))
+                                                .child("added").setValue(true);
+                                        //setUserContacts();
+                                        Toast.makeText(getApplication().getApplicationContext(), "accept", Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                                .setNegativeButton("Decline", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        mDatabase.child(getResources().getString(R.string.users))
+                                                .child(EmailNameHelper.ConvertEmail(_mainUserItem.get_email()))
+                                                .child("_contacts").child(EmailNameHelper.ConvertEmail(friendRequest[which].toString()))
+                                                .setValue(null);
+
+                                        mDatabase.child(getResources().getString(R.string.users))
+                                                .child(EmailNameHelper.ConvertEmail(friendRequest[which].toString()))
+                                                .child("_contacts").child(EmailNameHelper.ConvertEmail(_mainUserItem.get_email()))
+                                                .setValue(null);
+                                        Toast.makeText(getApplication().getApplicationContext(), "Decline", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
+                        AlertDialog dialogAccept = builderAccept.create();
+
+
+                        dialogAccept.show();
+
+
+                    }
+                    });
+
+
+
+
+
+
+
+
+
+                AlertDialog dialog = builder.create();
+
+
+                dialog.show();
+            }
+        });
 
     }
 
@@ -270,6 +355,9 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
                 }
 
+                if(!newContacts.isEmpty()){
+                    _requestFab.setEnabled(true);
+                }
                 RetriveContactUsers();
 
             }
