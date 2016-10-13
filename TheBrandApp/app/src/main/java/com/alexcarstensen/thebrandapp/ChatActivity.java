@@ -460,8 +460,8 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
             case REQUEST_PERMISSIONS_CAMERA:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission OK
-                    dispatchTakePictureIntent();
                     CheckPermissionIfGrantedGetLastKnowLocation();
+                    dispatchTakePictureIntent();
                 } else {
                     // Permission Denied
                     Toast.makeText(getApplicationContext(), R.string.txtPermissionDenied, Toast.LENGTH_SHORT)
@@ -489,6 +489,14 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
                 }
                 break;
             case REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission OK;
+                } else {
+                    // Permission Denied
+                    Toast.makeText(getApplicationContext(), R.string.txtPermissionDenied, Toast.LENGTH_SHORT)
+                            .show();
+                }
+                break;
             case REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission OK;
@@ -505,6 +513,29 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
     }
 
     private void handleCameraPermissions() {
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(ChatActivity.this, android.Manifest.permission.CAMERA)) {
+
+                    Toast.makeText(getApplication().getApplicationContext(), R.string.txtPermission, Toast.LENGTH_SHORT).show();
+                } else {
+                    ActivityCompat.requestPermissions(ChatActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE);
+
+                }
+            }
+            if (ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(ChatActivity.this, android.Manifest.permission.CAMERA)) {
+
+                    Toast.makeText(getApplication().getApplicationContext(), R.string.txtPermission, Toast.LENGTH_SHORT).show();
+                } else {
+                    ActivityCompat.requestPermissions(ChatActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE);
+
+
+                }
+
+            }
+        }
         if (ContextCompat.checkSelfPermission(ChatActivity.this, android.Manifest.permission.CAMERA)!= PackageManager.PERMISSION_GRANTED ) {
 
             if (ActivityCompat.shouldShowRequestPermissionRationale(ChatActivity.this,android.Manifest.permission.CAMERA)) {
@@ -518,28 +549,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
             }
         }
         else{
-            if (Build.VERSION.SDK_INT >= 23) {
-                if (ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(ChatActivity.this, android.Manifest.permission.CAMERA)) {
 
-                        Toast.makeText(getApplication().getApplicationContext(), R.string.txtPermission, Toast.LENGTH_SHORT).show();
-                    } else {
-                        ActivityCompat.requestPermissions(ChatActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE);
-
-                    }
-                }
-                if (ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(ChatActivity.this, android.Manifest.permission.CAMERA)) {
-
-                        Toast.makeText(getApplication().getApplicationContext(), R.string.txtPermission, Toast.LENGTH_SHORT).show();
-                    } else {
-                        ActivityCompat.requestPermissions(ChatActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE);
-
-
-                    }
-
-                }
-            }
 
             buildGoogleApiClient();
             mGoogleApiClient.connect();
