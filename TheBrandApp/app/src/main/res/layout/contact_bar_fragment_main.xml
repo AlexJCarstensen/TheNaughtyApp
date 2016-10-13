@@ -11,6 +11,6 @@
         android:layout_height="match_parent"
         android:textColor="#000000"
         android:text="@string/contacts_string"
-        android:textSize="62sp" />
+        android:textSize="40sp" />
 
 </FrameLayout>
