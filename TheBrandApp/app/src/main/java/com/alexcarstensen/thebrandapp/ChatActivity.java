@@ -378,6 +378,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
                     File file = new File(Environment.getExternalStorageDirectory().getPath(), "picture.jpg");
                     picUri = Uri.fromFile(file);
                     pictureCrop();
+
                 }
             } break;
             case REQUEST_CROP_IMAGE: {

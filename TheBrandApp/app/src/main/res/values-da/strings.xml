@@ -15,4 +15,10 @@
     <string name="txtCurrentWeather">Nuværende vejr</string>
     <string name="txtStatus" translatable="false"></string>
     <string name="write_msg_here">Skriv chat besked her</string>
+    <string name="chats">Chatter</string>
+    <string name="txtAddContact">Tilføj kontakt</string>
+    <string name="txtAddContactToList">Tilføj kontakt via e-mail</string>
+    <string name="txtPermission">Kamera og lokation skal have tilladelse</string>
+    <string name="txtPermissionDenied">Adgang nægtet</string>
+    <string name="users">Brugere</string>
 </resources>
