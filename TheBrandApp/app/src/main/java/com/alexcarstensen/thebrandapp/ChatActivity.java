@@ -9,14 +9,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -48,8 +49,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
 
-import static android.provider.MediaStore.EXTRA_OUTPUT;
-
 // REF: Made from ArniesFragmentsMovie example
 public class ChatActivity extends AppCompatActivity implements ChatMessageListFragment.OnChatSelectedListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
 
@@ -61,6 +60,8 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
     private static final int REQUEST_PERMISSIONS_FINE_LOCATION = 103;
     private static final int REQUEST_PERMISSIONS_COARSE_LOCATION = 104;
     private static final int REQUEST_IMAGE_MAP = 105;
+    private static final int REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE = 106;
+    private static final int REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE = 107;
 
 
     private FragmentManager _fm;
@@ -374,12 +375,8 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
         switch (requestCode) {
             case REQUEST_IMAGE_CAPTURE: {
                 if (resultCode == RESULT_OK) {
-                    File file = new File(this.getFilesDir(), "/images/picture.jpg");
-
-                    providedUri = FileProvider.getUriForFile(
-                            ChatActivity.this, "com.alexcarstensen.thebrandapp", file);
-                    //providedUri = bundle.
-                    //picUri = Uri.fromFile(file);
+                    File file = new File(Environment.getExternalStorageDirectory().getPath(), "picture.jpg");
+                    picUri = Uri.fromFile(file);
                     pictureCrop();
                 }
             } break;
@@ -484,8 +481,16 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
             case REQUEST_PERMISSIONS_COARSE_LOCATION:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission OK
-                    buildGoogleApiClient();
-                    mGoogleApiClient.connect();
+                } else {
+                    // Permission Denied
+                    Toast.makeText(getApplicationContext(), R.string.txtPermissionDenied, Toast.LENGTH_SHORT)
+                            .show();
+                }
+                break;
+            case REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE:
+            case REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission OK;
                 } else {
                     // Permission Denied
                     Toast.makeText(getApplicationContext(), R.string.txtPermissionDenied, Toast.LENGTH_SHORT)
@@ -499,7 +504,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
     }
 
     private void handleCameraPermissions() {
-        if (ContextCompat.checkSelfPermission(ChatActivity.this, android.Manifest.permission.CAMERA)!= PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(ChatActivity.this, android.Manifest.permission.CAMERA)!= PackageManager.PERMISSION_GRANTED ) {
 
             if (ActivityCompat.shouldShowRequestPermissionRationale(ChatActivity.this,android.Manifest.permission.CAMERA)) {
 
@@ -512,13 +517,35 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
             }
         }
         else{
+            if (Build.VERSION.SDK_INT >= 23) {
+                if (ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(ChatActivity.this, android.Manifest.permission.CAMERA)) {
 
+                        Toast.makeText(getApplication().getApplicationContext(), R.string.txtPermission, Toast.LENGTH_SHORT).show();
+                    } else {
+                        ActivityCompat.requestPermissions(ChatActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE);
+
+                    }
+                }
+                if (ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(ChatActivity.this, android.Manifest.permission.CAMERA)) {
+
+                        Toast.makeText(getApplication().getApplicationContext(), R.string.txtPermission, Toast.LENGTH_SHORT).show();
+                    } else {
+                        ActivityCompat.requestPermissions(ChatActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE);
+
+
+                    }
+
+                }
+            }
 
             buildGoogleApiClient();
             mGoogleApiClient.connect();
             dispatchTakePictureIntent();
 
         }
+
 
     }
 
@@ -527,35 +554,22 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            final File imagePath = new File(getFilesDir(), "images");
-            final File imageFile = new File(imagePath, "picture.jpg");
-
-
-            providedUri = FileProvider.getUriForFile(
-                    ChatActivity.this, "com.alexcarstensen.thebrandapp", imageFile);
+            String imageFilePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/picture.jpg";
+            File imageFile = new File(imageFilePath);
             Uri  imageFileUri = Uri.fromFile(imageFile);
 
-            takePictureIntent.putExtra(EXTRA_OUTPUT, providedUri);
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageFileUri);
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
         }
     }
 
     //REF: http://stackoverflow.com/questions/15228812/crop-image-in-android question and answer
     private void pictureCrop() {
-
-
-
-//        cropIntent.putExtra("scale", true);
-
-        // Exception will be thrown if read permission isn't granted
-
-       // startActivityForResult(cropIntent, PIC_CROP);
-        // take care of exceptions
         try {
             // call the standard crop action intent (the user device may not support it)
             Intent cropIntent = new Intent("com.android.camera.action.CROP");
             // indicate image type and Uri
-            cropIntent.setDataAndType(providedUri, "image/*");
+            cropIntent.setDataAndType(picUri, "image/*");
             // set crop properties
             cropIntent.putExtra("crop", "true");
             // indicate aspect of desired crop
@@ -566,8 +580,6 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
             cropIntent.putExtra("outputY", 550);
             // retrieve data on return
             cropIntent.putExtra("return-data", true);
-            cropIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
             // start the activity - we handle returning in onActivityResult
             startActivityForResult(cropIntent, REQUEST_CROP_IMAGE);
         }
