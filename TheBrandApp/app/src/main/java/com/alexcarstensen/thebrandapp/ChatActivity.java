@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -513,14 +514,22 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
     private void handleCameraPermissions() {
 
-
-        if(askPermission(ChatActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE ,REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE))
+        if (Build.VERSION.SDK_INT >= 23)
         {
+            if (askPermission(ChatActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE))
+            {
 
+                buildGoogleApiClient();
+                mGoogleApiClient.connect();
+                dispatchTakePictureIntent();
+
+            }
+        }
+        else
+        {
             buildGoogleApiClient();
             mGoogleApiClient.connect();
             dispatchTakePictureIntent();
-
         }
 
 
@@ -574,10 +583,18 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
     private void CheckPermissionIfGrantedGetLastKnowLocation()
     {
-        if(askPermission(ChatActivity.this, Manifest.permission.ACCESS_FINE_LOCATION,REQUEST_PERMISSIONS_FINE_LOCATION ))
+        if (Build.VERSION.SDK_INT >= 23)
+        {
+            if (askPermission(ChatActivity.this, Manifest.permission.ACCESS_FINE_LOCATION, REQUEST_PERMISSIONS_FINE_LOCATION))
+            {
+                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+            }
+
+        }
+        else
         {
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
         }
   }
 

@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,6 +17,8 @@ import android.widget.Toast;
 import com.alexcarstensen.thebrandapp.Helpers.EmailNameHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -24,6 +27,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
@@ -34,27 +38,30 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.ArrayList;
-
 import static com.alexcarstensen.thebrandapp.Helpers.PermissionHelper.askPermission;
+import static com.alexcarstensen.thebrandapp.R.id.map;
 
-public class MapActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
+public class MapActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener
 {
 
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
+    private LocationRequest mLocationRequest;
+    private Marker marker;
+    private Boolean isResume = true;
+    private Boolean zoomed;
+    private long UPDATE_INTERVAL = 10000;
+    private long FASTEST_INTERVAL = 2000;
     private final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION_SET_LOCATION = 2;
 
     private String _mainUserEmail;
-    private ArrayList<String> downloadUrls = new ArrayList<>();
-    public static final long ONE_MEGABYTE = 4096 * 4096; // Der skal diskuteres om hvordan billeder gemmes
+    public static final long ONE_MEGABYTE = 4096 * 4096;
 
     //Firebase
     private DatabaseReference mDatabase;
     private FirebaseStorage storage;
-    private StorageReference storageReference;
 
 
     @Override
@@ -85,34 +92,29 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     private void checkForPermissionIfGrantedInitializeMap()
     {
-        if (askPermission(MapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION))
+        if (Build.VERSION.SDK_INT >= 23)
+        {
+            if (askPermission(MapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION))
+            {
+                getMapFragmentAndInitializeMap();
+
+                buildGoogleApiClient();
+                mGoogleApiClient.connect();
+            }
+        }
+        else
         {
             getMapFragmentAndInitializeMap();
 
             buildGoogleApiClient();
             mGoogleApiClient.connect();
         }
-//        if (ContextCompat.checkSelfPermission(MapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-//        {
-//            if (ActivityCompat.shouldShowRequestPermissionRationale(MapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION))
-//                Toast.makeText(this, "This app needs your permission to access your location", Toast.LENGTH_SHORT).show();
-//            else
-//            {
-//                ActivityCompat.requestPermissions(MapActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-//
-//
-//            }
-//        }
-//        else
-//        {
-//
-//        }
     }
 
     private void getMapFragmentAndInitializeMap()
     {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+                .findFragmentById(map);
         mapFragment.getMapAsync(this);
     }
 
@@ -130,8 +132,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     private void setPictureMarkersOnMap()
     {
-        // TODO DEBUGGING ATM.. Retrive pictures from downloadURl
-
 
         ValueEventListener picturesListener = new ValueEventListener()
         {
@@ -153,6 +153,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                         public void onSuccess(byte[] bytes)
                         {
                             Bitmap bitmap = resize(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                            // CALL THIS METHOD TO GET THE URI FROM THE BITMAP
+
                             LatLng example = new LatLng(pic.getLat(), pic.getLon());
                             mMap.addMarker(new MarkerOptions()
                                     .position(example).title("picture")
@@ -181,7 +183,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     private Bitmap resize(Bitmap image)
     {
-        return Bitmap.createScaledBitmap(image, 130, 130, false);
+        return Bitmap.createScaledBitmap(image, 50, 50, false);
     }
 
     /**
@@ -202,31 +204,87 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     @Override
     public void onConnected(@Nullable Bundle bundle)
     {
+        startLocationUpdates();
         CheckPermissionIfGrantedGetLastKnowLocation();
 
         if (mLastLocation != null)
-            zoomToLastKnowLocation();
+            zoomToLastKnowLocation(mLastLocation);
     }
 
     private void CheckPermissionIfGrantedGetLastKnowLocation()
     {
-        if (askPermission(MapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION_SET_LOCATION) &&
-                askPermission(MapActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION))
+        if (Build.VERSION.SDK_INT >= 23)
+        {
+            if (askPermission(MapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION_SET_LOCATION) &&
+                    askPermission(MapActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION))
+            {
+                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            }
+        }
+        else
         {
 
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
 
         }
 
     }
 
-    private void zoomToLastKnowLocation()
+    // Ref: https://developer.android.com/training/location/receive-location-updates.html#save-state
+    protected void startLocationUpdates()
     {
-        LatLng lastKnownLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-        mMap.addMarker(new MarkerOptions().position(lastKnownLocation).title("Your Location"));
-        CameraUpdate yourLocation = CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15);
-        mMap.animateCamera(yourLocation);
+        // Create the location request
+        mLocationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(UPDATE_INTERVAL)
+                .setFastestInterval(FASTEST_INTERVAL);
+        // Request location updates
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
+                mLocationRequest, this);
+    }
+
+    @Override
+    public void onLocationChanged(Location location)
+    {
+
+        // You can now create a LatLng Object for use with maps
+        zoomToLastKnowLocation(location);
+    }
+
+    private void zoomToLastKnowLocation(Location location)
+    {
+        LatLng lastKnownLocation = new LatLng(location.getLatitude(), location.getLongitude());
+        if (isResume)
+        {
+            if (marker != null)
+                marker.remove();
+            marker = mMap.addMarker(new MarkerOptions().position(lastKnownLocation).title("Your Location"));
+            CameraUpdate yourLocation = CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15);
+            mMap.animateCamera(yourLocation);
+            zoomed = true;
+            isResume = false;
+        }
+        else
+        {
+
+            if (marker != null)
+                marker.remove();
+            if (zoomed)
+            {
+                marker = mMap.addMarker(new MarkerOptions().position(lastKnownLocation).title("Your Location"));
+                CameraUpdate yourLocation = CameraUpdateFactory.newLatLng(lastKnownLocation);
+                mMap.animateCamera(yourLocation);
+            }
+            else
+            {
+                marker = mMap.addMarker(new MarkerOptions().position(lastKnownLocation).title("Your Location"));
+                CameraUpdate yourLocation = CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15);
+                mMap.animateCamera(yourLocation);
+                zoomed = true;
+            }
+
+
+        }
     }
 
 
@@ -235,6 +293,31 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     {
         mGoogleApiClient.disconnect();
         super.onStop();
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        stopLocationUpdates();
+    }
+
+    protected void stopLocationUpdates()
+    {
+        LocationServices.FusedLocationApi.removeLocationUpdates(
+                mGoogleApiClient, this);
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        isResume = true;
+
+        if (mGoogleApiClient.isConnected())
+        {
+            startLocationUpdates();
+        }
     }
 
     @Override
@@ -281,6 +364,5 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     }
 
-//
 
 }
