@@ -381,6 +381,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
                     //providedUri = bundle.
                     //picUri = Uri.fromFile(file);
                     pictureCrop();
+
                 }
             } break;
             case REQUEST_CROP_IMAGE: {
