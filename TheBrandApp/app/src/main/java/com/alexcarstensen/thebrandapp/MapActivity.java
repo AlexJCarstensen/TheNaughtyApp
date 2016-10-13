@@ -9,9 +9,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -38,6 +36,8 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 
+import static com.alexcarstensen.thebrandapp.Helpers.PermissionHelper.askPermission;
+
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
 {
 
@@ -55,9 +55,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     private DatabaseReference mDatabase;
     private FirebaseStorage storage;
     private StorageReference storageReference;
-
-
-
 
 
     @Override
@@ -88,24 +85,28 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     private void checkForPermissionIfGrantedInitializeMap()
     {
-        if (ContextCompat.checkSelfPermission(MapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-        {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(MapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION))
-                Toast.makeText(this, "This app needs your permission to access your location", Toast.LENGTH_SHORT).show();
-            else
-            {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-
-                getMapFragmentAndInitializeMap();
-            }
-        }
-        else
+        if (askPermission(MapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION))
         {
             getMapFragmentAndInitializeMap();
 
             buildGoogleApiClient();
             mGoogleApiClient.connect();
         }
+//        if (ContextCompat.checkSelfPermission(MapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+//        {
+//            if (ActivityCompat.shouldShowRequestPermissionRationale(MapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION))
+//                Toast.makeText(this, "This app needs your permission to access your location", Toast.LENGTH_SHORT).show();
+//            else
+//            {
+//                ActivityCompat.requestPermissions(MapActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+//
+//
+//            }
+//        }
+//        else
+//        {
+//
+//        }
     }
 
     private void getMapFragmentAndInitializeMap()
@@ -132,12 +133,15 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         // TODO DEBUGGING ATM.. Retrive pictures from downloadURl
 
 
-        ValueEventListener picturesListener = new ValueEventListener() {
+        ValueEventListener picturesListener = new ValueEventListener()
+        {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
 
-                for (DataSnapshot urlSnapShot: dataSnapshot.getChildren()
-                     ) {
+                for (DataSnapshot urlSnapShot : dataSnapshot.getChildren()
+                        )
+                {
 
                     final Pication pic = urlSnapShot.getValue(Pication.class);
 
@@ -159,11 +163,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 }
 
 
-
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(DatabaseError databaseError)
+            {
                 Log.d("Maps", "Couldn't fetch pictures");
             }
         };
@@ -171,11 +175,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         String usersConvertedEmail = EmailNameHelper.ConvertEmail(_mainUserEmail);
 
         mDatabase.child("Pictures").child(usersConvertedEmail).addListenerForSingleValueEvent(picturesListener);
-
-
-
-
-
 
 
     }
@@ -211,14 +210,15 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     private void CheckPermissionIfGrantedGetLastKnowLocation()
     {
-        if (ActivityCompat.checkSelfPermission(MapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        if (askPermission(MapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION_SET_LOCATION) &&
+                askPermission(MapActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION))
         {
-            ActivityCompat.requestPermissions(MapActivity.this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION_SET_LOCATION);
-        }
-        else
+
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+
+        }
+
     }
 
     private void zoomToLastKnowLocation()
