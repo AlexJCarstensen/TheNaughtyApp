@@ -76,7 +76,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
     private Location mLastLocation;
     private Uri providedUri;
 
-    ArrayList<MessageItem> messageItemList = new ArrayList<MessageItem>();
+    private ArrayList<MessageItem> messageItemList = new ArrayList<MessageItem>();
 
 
     public String mainUserName;
