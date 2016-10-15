@@ -22,6 +22,7 @@ import com.google.firebase.auth.FirebaseUser;
 public class LoginActivity extends AppCompatActivity
 {
     private static final int REQUEST_SIGNUP = 0;
+    private static final int OVERLAY_PERMISSION = 0;
     public static final String TAG = "LoginActivity";
     public static final String SEND_EMAIL = "SendEmail";
     private EditText _emailField;
@@ -225,6 +226,8 @@ public class LoginActivity extends AppCompatActivity
                 _passwordField.setText(password);
             }
         }
+
+        
     }
 
 

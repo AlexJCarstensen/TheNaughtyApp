@@ -5,7 +5,7 @@ android {
         config {
             keyAlias 'TheBrandApp'
             keyPassword 'Test1234'
-                storeFile file('/home/ubuntuudvikling/Documents/thebrandapp.jks')
+            storeFile file('/home/plex/Documents/keystores/thebrandapp.jks')
             storePassword 'Test1234'
         }
     }
@@ -18,6 +18,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
 
     }
     buildTypes {
@@ -40,6 +41,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'com.android.support:design:24.2.1'
     compile 'com.google.android.gms:play-services:9.6.1'
+    compile 'com.google.android.gms:play-services-location:9.6.1'
     compile 'com.google.code.gson:gson:2.7'
     //Firebase dependencies
     compile 'com.google.firebase:firebase-core:9.4.0'
@@ -50,5 +52,6 @@ dependencies {
     //volley
     compile 'com.android.volley:volley:1.0.0'
     testCompile 'junit:junit:4.12'
+    compile 'com.android.support:multidex:1.0.1'
 }
 apply plugin: 'com.google.gms.google-services'

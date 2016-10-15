@@ -15,9 +15,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -48,6 +46,8 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
+
+import static com.alexcarstensen.thebrandapp.Helpers.PermissionHelper.askPermission;
 
 // REF: Made from ArniesFragmentsMovie example
 public class ChatActivity extends AppCompatActivity implements ChatMessageListFragment.OnChatSelectedListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
@@ -434,7 +434,7 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
 
 
-                    
+
 
                 }
             } break;
@@ -458,51 +458,51 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case REQUEST_PERMISSIONS_CAMERA:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission OK
                     CheckPermissionIfGrantedGetLastKnowLocation();
+
                     dispatchTakePictureIntent();
-                } else {
+
+                }
+                else {
                     // Permission Denied
                     Toast.makeText(getApplicationContext(), R.string.txtPermissionDenied, Toast.LENGTH_SHORT)
                             .show();
                 }
                 break;
             case REQUEST_PERMISSIONS_FINE_LOCATION:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission OK
                     buildGoogleApiClient();
                     mGoogleApiClient.connect();
-                } else {
-                    // Permission Denied
-                    Toast.makeText(getApplicationContext(), R.string.txtPermissionDenied, Toast.LENGTH_SHORT)
-                            .show();
                 }
+
                 break;
             case REQUEST_PERMISSIONS_COARSE_LOCATION:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission OK
-                } else {
-                    // Permission Denied
-                    Toast.makeText(getApplicationContext(), R.string.txtPermissionDenied, Toast.LENGTH_SHORT)
-                            .show();
                 }
-                break;
-            case REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission OK;
-                } else {
+                else {
                     // Permission Denied
                     Toast.makeText(getApplicationContext(), R.string.txtPermissionDenied, Toast.LENGTH_SHORT)
                             .show();
                 }
                 break;
             case REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission OK;
-                } else {
+                }
+            case REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission OK;
+                    askPermission(ChatActivity.this, android.Manifest.permission.CAMERA ,REQUEST_PERMISSIONS_CAMERA);
+
+
+                }
+               else {
                     // Permission Denied
-                    Toast.makeText(getApplicationContext(), R.string.txtPermissionDenied, Toast.LENGTH_SHORT)
+                Toast.makeText(getApplicationContext(), R.string.txtPermissionDenied, Toast.LENGTH_SHORT)
                             .show();
                 }
                 break;
@@ -514,51 +514,29 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
     private void handleCameraPermissions() {
 
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(ChatActivity.this, android.Manifest.permission.CAMERA)) {
+        if (Build.VERSION.SDK_INT >= 23)
+        {
+            if (askPermission(ChatActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE))
+            {
 
-                    Toast.makeText(getApplication().getApplicationContext(), R.string.txtPermission, Toast.LENGTH_SHORT).show();
-                } else {
-                    ActivityCompat.requestPermissions(ChatActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE);
-
-                }
-            }
-            if (ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(ChatActivity.this, android.Manifest.permission.CAMERA)) {
-
-                    Toast.makeText(getApplication().getApplicationContext(), R.string.txtPermission, Toast.LENGTH_SHORT).show();
-                } else {
-                    ActivityCompat.requestPermissions(ChatActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE);
-
-
-                }
+                buildGoogleApiClient();
+                mGoogleApiClient.connect();
+                dispatchTakePictureIntent();
 
             }
         }
-        if (ContextCompat.checkSelfPermission(ChatActivity.this, android.Manifest.permission.CAMERA)!= PackageManager.PERMISSION_GRANTED ) {
-
-            if (ActivityCompat.shouldShowRequestPermissionRationale(ChatActivity.this,android.Manifest.permission.CAMERA)) {
-
-                Toast.makeText(getApplication().getApplicationContext(),R.string.txtPermission, Toast.LENGTH_SHORT).show();
-            }
-            else{
-                ActivityCompat.requestPermissions(ChatActivity.this, new String[]{android.Manifest.permission.CAMERA}, REQUEST_PERMISSIONS_CAMERA);
-
-                //dispatchTakePictureIntent();
-            }
-        }
-        else{
-
-
+        else
+        {
             buildGoogleApiClient();
             mGoogleApiClient.connect();
             dispatchTakePictureIntent();
-
         }
 
 
+
+
     }
+
 
 
     private void dispatchTakePictureIntent() {
@@ -605,15 +583,20 @@ public class ChatActivity extends AppCompatActivity implements ChatMessageListFr
 
     private void CheckPermissionIfGrantedGetLastKnowLocation()
     {
-        if (ActivityCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        if (Build.VERSION.SDK_INT >= 23)
         {
-            ActivityCompat.requestPermissions(ChatActivity.this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_PERMISSIONS_FINE_LOCATION);
+            if (askPermission(ChatActivity.this, Manifest.permission.ACCESS_FINE_LOCATION, REQUEST_PERMISSIONS_FINE_LOCATION))
+            {
+                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+            }
+
         }
         else
+        {
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-    }
+        }
+  }
 
     private void buildGoogleApiClient()
     {
