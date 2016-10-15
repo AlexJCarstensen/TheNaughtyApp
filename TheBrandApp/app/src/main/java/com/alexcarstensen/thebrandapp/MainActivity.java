@@ -19,9 +19,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.StreamDownloadTask;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 // Implemented an interface between the MainContactListFragment and the MainActivity
 public class MainActivity extends AppCompatActivity implements MainContactListFragment.OnContactSelectedListener {
@@ -224,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
                 //creating dialog to add contact
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
-                final String[] dummyfriends = {"Peter", "Moe", "hili"};
+
                 final String[] friendRequest = new String[newContacts.size()];
                  int i = 0;
 
@@ -249,7 +250,8 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
                                                 .child(EmailNameHelper.ConvertEmail(_mainUserItem.get_email()))
                                                 .child("_contacts").child(EmailNameHelper.ConvertEmail(friendRequest[which].toString()))
                                                 .child("added").setValue(true);
-                                        //setUserContacts();
+                                        removeContact(friendRequest[which].toString());
+                                        removeElements(friendRequest, friendRequest[which].toString());
                                         Toast.makeText(getApplication().getApplicationContext(), "accept", Toast.LENGTH_SHORT).show();
                                     }
                                 })
@@ -264,6 +266,8 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
                                                 .child(EmailNameHelper.ConvertEmail(friendRequest[which].toString()))
                                                 .child("_contacts").child(EmailNameHelper.ConvertEmail(_mainUserItem.get_email()))
                                                 .setValue(null);
+                                        removeContact(friendRequest[which].toString());
+                                        removeElements(friendRequest, friendRequest[which].toString());
                                         Toast.makeText(getApplication().getApplicationContext(), "Decline", Toast.LENGTH_SHORT).show();
                                     }
                                 });
@@ -294,12 +298,20 @@ public class MainActivity extends AppCompatActivity implements MainContactListFr
 
     }
 
-    private void temp_dialog(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+    public static String[] removeElements(String[] input, String deleteMe) {
+        List result = new LinkedList();
 
-        builder.setTitle("Friend request");
+        for(String item : input)
+            if(!deleteMe.equals(item))
+                result.add(item);
 
+        return (String[]) result.toArray(input);
+    }
+    public void removeContact(String deleteMe) {
 
+        for(Contact item : newContacts)
+            if(deleteMe.equals(item.getEmail()))
+                newContacts.remove(item);
 
     }
 
